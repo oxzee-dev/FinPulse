@@ -308,13 +308,6 @@
             white-space: nowrap;
         }
 
-        .ticker-meta {
-            font-size: 10px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-            text-transform: uppercase;
-        }
-
         .ticker-stats {
             display: flex;
             gap: 30px;
@@ -364,10 +357,10 @@
         }
 
         .grid2 {
-            flex: 0 0 320px;
+            flex: 1.2;
             background: var(--bg-secondary);
             overflow-y: auto;
-            border-left: 1px solid var(--border-color);
+            min-width: 280px;
         }
 
         .grid3 {
@@ -384,42 +377,10 @@
             position: relative;
         }
 
-        /* Enhanced Financial Data Panel */
+        /* Financial Data Panel - Table Style */
         .financial-panel {
             padding: 0;
         }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            transition: background 0.2s;
-        }
-
-        .metric-row:hover {
-            background: var(--bg-hover);
-        }
-
-        .metric-label {
-            color: var(--text-secondary);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .metric-value {
-            font-family: var(--font-mono);
-            font-weight: bold;
-            font-size: 12px;
-            color: var(--text-primary);
-        }
-
-        .metric-value.positive { color: var(--positive); }
-        .metric-value.negative { color: var(--negative); }
-        .metric-value.accent { color: var(--accent-warm); }
 
         /* Section headers in financial panel */
         .fin-section-header {
@@ -434,6 +395,91 @@
             position: sticky;
             top: 0;
             z-index: 10;
+        }
+
+        /* Compact Table Style for Metrics */
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .metrics-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .metrics-table .label {
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 10px;
+            width: 50%;
+        }
+
+        .metrics-table .value {
+            text-align: right;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .metrics-table .value.positive { color: var(--positive); }
+        .metrics-table .value.negative { color: var(--negative); }
+        .metrics-table .value.accent { color: var(--accent-warm); }
+
+        /* MAIN INFO Specific Styling */
+        .main-info-header {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-primary);
+        }
+
+        .main-info-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .main-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            font-family: var(--font-mono);
+        }
+
+        .main-mcap {
+            font-size: 12px;
+            color: var(--accent-warm);
+            font-family: var(--font-mono);
+        }
+
+        .pe-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .pe-card {
+            background: var(--bg-secondary);
+            padding: 6px 4px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .pe-card-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .pe-card-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
         }
 
         /* Progress bars for price targets */
@@ -490,11 +536,6 @@
         .rec-hold { background: rgba(255, 179, 71, 0.2); color: var(--accent-warm); border: 1px solid var(--accent-warm); }
         .rec-sell { background: rgba(255, 61, 0, 0.15); color: var(--negative); }
         .rec-strong_sell { background: rgba(255, 61, 0, 0.2); color: var(--negative); border: 1px solid var(--negative); }
-
-        /* Dynamic background colors based on values */
-        .bg-positive { background: linear-gradient(90deg, rgba(0, 200, 83, 0.1) 0%, transparent 100%); }
-        .bg-negative { background: linear-gradient(90deg, rgba(255, 61, 0, 0.1) 0%, transparent 100%); }
-        .bg-neutral { background: var(--bg-primary); }
 
         /* News Section */
         .news-container {
@@ -555,62 +596,6 @@
             color: var(--accent-cyan);
         }
 
-        /* Mini Cards for PE/FWD PE */
-        .mini-cards-row {
-            display: flex;
-            gap: 8px;
-            padding: 8px 12px;
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .mini-card {
-            flex: 1;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            text-align: center;
-        }
-
-        .mini-card-label {
-            font-size: 9px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .mini-card-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--text-primary);
-            font-family: var(--font-mono);
-        }
-
-        /* Compact Table Style for Metrics */
-        .compact-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-            background: var(--bg-primary);
-        }
-
-        .compact-table td {
-            padding: 6px 8px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .compact-table .label {
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-size: 10px;
-        }
-
-        .compact-table .value {
-            text-align: right;
-            font-family: var(--font-mono);
-            font-weight: bold;
-        }
-
         /* Scrollbars */
         ::-webkit-scrollbar {
             width: 8px;
@@ -654,6 +639,15 @@
             padding: 20px;
             text-align: center;
         }
+
+        /* Sector/Industry in title */
+        .ticker-sector {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
     </style>
 <base target="_blank">
 </head>
@@ -689,7 +683,7 @@
                     <div>
                         <div class="ticker-main" id="mainTicker">--</div>
                         <div class="ticker-name" id="tickerName">Select a ticker</div>
-                        <div class="ticker-meta" id="tickerMeta"></div>
+                        <div class="ticker-sector" id="tickerSector"></div>
                     </div>
                 </div>
                 <div class="ticker-stats">
@@ -736,19 +730,19 @@
     </div>
 
     <script>
-        // State Management - ONLY Market Outlook loaded initially
+        // State Management
         const state = {
             cache: new Map(),
             data: {},
             selectedTicker: null,
-            loadedSections: new Set(), // Track which sections have been loaded
-            watchlist: new Set(),
+            loadedSections: new Set(),
+            watchlist: new Set(), // Stores tickers added via search
             sections: {
                 'Watchlist': {
                     expanded: true,
                     tickers: [],
                     isWatchlist: true,
-                    loaded: true // Watchlist is always "loaded" but starts empty
+                    loaded: true
                 },
                 'Market Outlook': {
                     expanded: true,
@@ -821,17 +815,6 @@
             return val !== null && val !== undefined ? val : defaultVal;
         }
 
-        // Determine background class based on value
-        function getValueBg(value, type = 'change') {
-            if (type === 'change') {
-                const num = parsePercent(value);
-                if (num > 0) return 'bg-positive';
-                if (num < 0) return 'bg-negative';
-                return 'bg-neutral';
-            }
-            return 'bg-neutral';
-        }
-
         // Cache utility
         async function fetchWithCache(url) {
             if (state.cache.has(url)) return state.cache.get(url);
@@ -851,13 +834,10 @@
         // Initialize - ONLY load Market Outlook initially
         async function init() {
             try {
-                // Load only Market Outlook on startup
                 await loadSection('Market Outlook');
-                
                 renderTickerTape();
                 renderSections();
                 
-                // Auto-select first ticker from Market Outlook
                 const firstTicker = state.sections['Market Outlook'].tickers[0];
                 if (firstTicker && state.data[firstTicker]) {
                     selectTicker(firstTicker);
@@ -871,11 +851,7 @@
         // Load specific section
         async function loadSection(sectionName) {
             const section = state.sections[sectionName];
-            
-            // Skip if already loaded or watchlist
             if (!section || section.loaded || section.isWatchlist) return;
-            
-            // Skip if no tickers
             if (!section.tickers || section.tickers.length === 0) {
                 section.loaded = true;
                 return;
@@ -898,7 +874,6 @@
         // Load single ticker (for watchlist)
         async function loadSingleTicker(ticker) {
             if (state.data[ticker]) return state.data[ticker];
-            
             try {
                 const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${ticker}`);
                 if (Array.isArray(data) && data[0]) {
@@ -911,7 +886,7 @@
             }
         }
 
-        // Render Ticker Tape - only from loaded data
+        // Render Ticker Tape
         function renderTickerTape() {
             const tapeTickers = ['SPY', 'QQQ', 'IWM', 'DIA', 'GLD', 'TLT', 'VIX', 'AAPL', 'TSLA', 'NVDA'];
             const content = document.getElementById('tickerContent');
@@ -1042,7 +1017,6 @@
             
             section.expanded = !section.expanded;
             
-            // Load data if expanding and not loaded yet
             if (section.expanded && !section.loaded && !section.isWatchlist) {
                 await loadSection(name);
             }
@@ -1054,17 +1028,13 @@
         window.selectTicker = async function(ticker) {
             state.selectedTicker = ticker;
             
-            // Update selection UI
             document.querySelectorAll('.data-table tr').forEach(tr => tr.classList.remove('selected'));
             const row = document.getElementById(`row-${ticker}`);
             if (row) row.classList.add('selected');
             
-            // Ensure we have data
             if (!state.data[ticker]) {
                 const data = await loadSingleTicker(ticker);
-                if (data) {
-                    renderSections();
-                }
+                if (data) renderSections();
             }
             
             const data = state.data[ticker];
@@ -1084,10 +1054,10 @@
             document.getElementById('mainTicker').textContent = data.ticker || '--';
             document.getElementById('tickerName').textContent = main.shortName || data.shortName || '--';
             
-            // Add sector/industry meta
-            const sector = company.sector || main.sector || '--';
-            const industry = company.industry || main.industry || '--';
-            document.getElementById('tickerMeta').textContent = `${sector} | ${industry}`;
+            const sector = company.sector || main.sector || '';
+            const industry = company.industry || main.industry || '';
+            const sectorText = sector && industry ? `${sector} | ${industry}` : (sector || industry || '');
+            document.getElementById('tickerSector').textContent = sectorText;
             
             const price = main.currentPrice || 0;
             document.getElementById('mainPrice').textContent = price ? price.toFixed(2) : '--';
@@ -1147,7 +1117,7 @@
             container.appendChild(script);
         }
 
-        // Update Financial Data Panel
+        // Update Financial Data Panel - Organized by API structure
         function updateFinancialData(data) {
             const main = data.main_info || {};
             const pricePerf = data.price_performance || {};
@@ -1157,14 +1127,13 @@
             const returns = data.returns || {};
             const risk = data.risk || {};
             const dividends = data.dividends || {};
-            const earnings = data.earnings || {};
             const growth = data.growth || {};
-            const debt = data.debt || {};
             const pt = data.price_targets || {};
+            const debt = data.debt || {};
             
             const currentPrice = main.currentPrice || pricePerf.currentPrice || 0;
-            const ptLow = pt.targetLowPrice;
-            const ptHigh = pt.targetHighPrice;
+            const ptLow = pt.targetLowPrice || main.PT_Low;
+            const ptHigh = pt.targetHighPrice || main.PT_High;
             const ptMean = pt.targetMeanPrice;
             
             let ptPercent = 50;
@@ -1183,133 +1152,145 @@
                 else if (recKey.includes('sell')) { recClass = 'rec-sell'; recText = 'SELL'; }
             }
             
-            const pe = main.PE || ratios.trailingPE || '--';
-            const fwdPe = main.forwardPE || ratios.forwardPE || '--';
-            const mcap = main.marketCap || '--';
+            const row = (label, value, valueClass = '') => `<tr><td class="label">${label}</td><td class="value ${valueClass}">${value}</td></tr>`;
             
             const html = `
                 <div class="financial-panel">
+                    <!-- 1. Price Targets & Analyst Rating -->
                     <div class="fin-section-header">Price Targets & Analyst Rating</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Analyst Rating</span>
-                        <span class="metric-value"><span class="rec-badge ${recClass}">${recText}</span></span>
-                    </div>
-                    ${ptLow && ptHigh ? `
-                    <div class="metric-row" style="flex-direction: column; align-items: stretch;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span class="metric-label">Price Target Range</span>
-                            <span class="metric-value accent">$${ptLow.toFixed(2)} - $${ptHigh.toFixed(2)}</span>
+                    <div style="padding: 8px 12px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: var(--text-secondary); text-transform: uppercase; font-size: 10px;">Analyst Rating</span>
+                            <span class="rec-badge ${recClass}">${recText}</span>
                         </div>
-                        <div class="pt-container">
-                            <div class="pt-bar-bg">
-                                <div class="pt-bar-fill" style="width: ${ptPercent}%; background: linear-gradient(90deg, var(--negative) 0%, var(--accent-warm) 50%, var(--positive) 100%);"></div>
-                                <div class="pt-current" style="left: ${ptPercent}%;"></div>
+                        ${ptLow && ptHigh ? `
+                        <div style="margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--text-secondary); font-size: 10px;">Price Target Range</span>
+                                <span style="color: var(--accent-warm); font-weight: bold; font-family: var(--font-mono);">$${ptLow.toFixed(2)} - $${ptHigh.toFixed(2)}</span>
                             </div>
-                            <div class="pt-labels">
-                                <span>Low: $${ptLow.toFixed(2)}</span>
-                                <span style="color: var(--accent-cyan); font-weight: bold;">Current: $${currentPrice.toFixed(2)}</span>
-                                <span>High: $${ptHigh.toFixed(2)}</span>
+                            <div class="pt-container">
+                                <div class="pt-bar-bg">
+                                    <div class="pt-bar-fill" style="width: ${ptPercent}%; background: linear-gradient(90deg, var(--negative) 0%, var(--accent-warm) 50%, var(--positive) 100%);"></div>
+                                    <div class="pt-current" style="left: ${ptPercent}%;"></div>
+                                </div>
+                                <div class="pt-labels">
+                                    <span>Low: $${ptLow.toFixed(2)}</span>
+                                    <span style="color: var(--accent-cyan); font-weight: bold;">Current: $${currentPrice.toFixed(2)}</span>
+                                    <span>High: $${ptHigh.toFixed(2)}</span>
+                                </div>
                             </div>
+                            ${ptMean ? `<div style="text-align: center; margin-top: 4px; font-size: 10px; color: var(--text-secondary);">Mean Target: $${ptMean.toFixed(2)} (${((ptMean/currentPrice-1)*100).toFixed(1)}%)</div>` : ''}
                         </div>
-                        ${ptMean ? `<div style="text-align: center; margin-top: 4px; font-size: 10px; color: var(--text-secondary);">Mean Target: $${ptMean.toFixed(2)} (${((ptMean/currentPrice-1)*100).toFixed(1)}%)</div>` : ''}
+                        ` : ''}
+                        ${pt.numberOfAnalystOpinions ? `
+                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                            <span style="color: var(--text-secondary);">Analyst Coverage</span>
+                            <span style="font-family: var(--font-mono);">${pt.numberOfAnalystOpinions} firms</span>
+                        </div>
+                        ` : ''}
                     </div>
-                    ` : ''}
-                    ${pt.numberOfAnalystOpinions ? `
-                    <div class="metric-row">
-                        <span class="metric-label">Analyst Coverage</span>
-                        <span class="metric-value">${pt.numberOfAnalystOpinions} firms</span>
-                    </div>
-                    ` : ''}
-                    
+
+                    <!-- 2. Main Info -->
                     <div class="fin-section-header">Main Info</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Price</span>
-                        <span class="metric-value accent">$${currentPrice ? currentPrice.toFixed(2) : '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Market Cap</span>
-                        <span class="metric-value">${mcap}</span>
+                    <div class="main-info-header">
+                        <div class="main-info-top">
+                            <span class="main-price">$${currentPrice ? currentPrice.toFixed(2) : '--'}</span>
+                            <span class="main-mcap">${main.marketCap || valuation.marketCap || '--'}</span>
+                        </div>
+                        
+                        <!-- PE Cards -->
+                        <div class="pe-cards">
+                            <div class="pe-card">
+                                <div class="pe-card-label">P/E</div>
+                                <div class="pe-card-value">${main.PE || ratios.trailingPE || '--'}</div>
+                            </div>
+                            <div class="pe-card">
+                                <div class="pe-card-label">Fwd P/E</div>
+                                <div class="pe-card-value">${main.forwardPE || ratios.forwardPE || '--'}</div>
+                            </div>
+                            <div class="pe-card">
+                                <div class="pe-card-label">PEG</div>
+                                <div class="pe-card-value">${ratios.pegRatio || growth.pegRatio || growth.trailingPegRatio || '--'}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Financial Summary Table -->
+                        <table class="metrics-table" style="margin-top: 8px;">
+                            ${row('Revenue', growth.totalRevenue || '--')}
+                            ${row('Net Income', debt.netIncomeToCommon || '--')}
+                            ${row('Revenue Growth', growth.revenueGrowth || '--', parsePercent(growth.revenueGrowth) >= 0 ? 'positive' : 'negative')}
+                            ${row('Earnings Growth', growth.earningsGrowth || '--', parsePercent(growth.earningsGrowth) >= 0 ? 'positive' : 'negative')}
+                        </table>
                     </div>
                     
-                    <div class="mini-cards-row">
-                        <div class="mini-card">
-                            <div class="mini-card-label">P/E</div>
-                            <div class="mini-card-value">${pe}</div>
-                        </div>
-                        <div class="mini-card">
-                            <div class="mini-card-label">FWD P/E</div>
-                            <div class="mini-card-value">${fwdPe}</div>
-                        </div>
-                        <div class="mini-card">
-                            <div class="mini-card-label">PEG</div>
-                            <div class="mini-card-value">${ratios.pegRatio || growth.pegRatio || growth.trailingPegRatio || '--'}</div>
-                        </div>
-                    </div>
-                    
-                    <table class="compact-table">
-                        <tr>
-                            <td class="label">Revenue</td>
-                            <td class="value">${main.totalRevenue || '--'}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Net Income</td>
-                            <td class="value">${main.netIncome || '--'}</td>
-                        </tr>
-                        <tr class="${getValueBg(growth.revenueGrowth)}">
-                            <td class="label">Revenue Growth</td>
-                            <td class="value ${parsePercent(growth.revenueGrowth) >= 0 ? 'positive' : 'negative'}">${growth.revenueGrowth || '--'}</td>
-                        </tr>
-                        <tr class="${getValueBg(growth.earningsGrowth)}">
-                            <td class="label">Earnings Growth</td>
-                            <td class="value ${parsePercent(growth.earningsGrowth) >= 0 ? 'positive' : 'negative'}">${growth.earningsGrowth || '--'}</td>
-                        </tr>
+                    <!-- 3. Valuation Metrics -->
+                    <div class="fin-section-header">Valuation Metrics</div>
+                    <table class="metrics-table">
+                        ${row('Enterprise Value', valuation.enterpriseValue || '--')}
+                        ${row('Price to Book', main.priceToBook || valuation.priceToBook || ratios.priceToBook || '--')}
+                        ${row('Price to Sales', main.PS || ratios.priceToSalesTrailing12Months || '--')}
+                        ${row('EV/EBITDA', valuation.enterpriseToEbitda || '--')}
+                        ${row('Book Value', valuation.bookValue || growth.bookValue || '--')}
                     </table>
                     
-                    <div class="fin-section-header">Trading Statistics</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Volume</span>
-                        <span class="metric-value">${trading.volume ? (trading.volume / 1000000).toFixed(2) + 'M' : '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Avg Volume (10d)</span>
-                        <span class="metric-value">${trading.averageVolume10days ? (trading.averageVolume10days / 1000000).toFixed(2) + 'M' : '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Beta</span>
-                        <span class="metric-value">${risk.beta || risk.beta3Year || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">52 Week Range</span>
-                        <span class="metric-value">$${pricePerf.fiftyTwoWeekLow?.toFixed(2) || '--'} - $${pricePerf.fiftyTwoWeekHigh?.toFixed(2) || '--'}</span>
-                    </div>
-                    
+                    <!-- 4. Returns & Profitability -->
                     <div class="fin-section-header">Returns & Profitability</div>
-                    <div class="metric-row ${getValueBg(returns.returnOnAssets)}">
-                        <span class="metric-label">Return on Assets</span>
-                        <span class="metric-value">${returns.returnOnAssets || ratios.returnOnAssets || '--'}</span>
-                    </div>
-                    <div class="metric-row ${getValueBg(returns.returnOnEquity)}">
-                        <span class="metric-label">Return on Equity</span>
-                        <span class="metric-value">${returns.returnOnEquity || ratios.returnOnEquity || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Profit Margin</span>
-                        <span class="metric-value">${returns.profitMargins || ratios.profitMargins || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Operating Margin</span>
-                        <span class="metric-value">${returns.operatingMargins || ratios.operatingMargins || '--'}</span>
-                    </div>
+                    <table class="metrics-table">
+                        ${row('Return on Assets', returns.returnOnAssets || ratios.returnOnAssets || '--')}
+                        ${row('Return on Equity', returns.returnOnEquity || ratios.returnOnEquity || '--')}
+                        ${row('Profit Margin', returns.profitMargins || ratios.profitMargins || '--')}
+                        ${row('Operating Margin', returns.operatingMargins || ratios.operatingMargins || '--')}
+                        ${row('Gross Margin', returns.grossMargins || '--')}
+                        ${row('EBITDA Margin', returns.ebitdaMargins || '--')}
+                    </table>
                     
+                    <!-- 5. Price Performance -->
+                    <div class="fin-section-header">Price Performance</div>
+                    <table class="metrics-table">
+                        ${row('Previous Close', pricePerf.previousClose ? '$' + pricePerf.previousClose.toFixed(2) : '--')}
+                        ${row('Open', pricePerf.open ? '$' + pricePerf.open.toFixed(2) : '--')}
+                        ${row('Day Range', pricePerf.dayLow && pricePerf.dayHigh ? `$${pricePerf.dayLow.toFixed(2)} - $${pricePerf.dayHigh.toFixed(2)}` : '--')}
+                        ${row('52 Week Range', pricePerf.fiftyTwoWeekLow && pricePerf.fiftyTwoWeekHigh ? `$${pricePerf.fiftyTwoWeekLow.toFixed(2)} - $${pricePerf.fiftyTwoWeekHigh.toFixed(2)}` : '--')}
+                        ${row('52 Week Change', main.fiftyTwoWeekChange || pricePerf['52WeekChange'] || '--')}
+                        ${row('Distance from 50 DMA', trading.change_from_50DMA || '--', parsePercent(trading.change_from_50DMA) >= 0 ? 'positive' : 'negative')}
+                        ${row('Distance from 200 DMA', trading.change_from_200DMA || '--', parsePercent(trading.change_from_200DMA) >= 0 ? 'positive' : 'negative')}
+                    </table>
+                    
+                    <!-- 6. Trading Information -->
+                    <div class="fin-section-header">Trading Information</div>
+                    <table class="metrics-table">
+                        ${row('Volume', trading.volume ? (trading.volume / 1000000).toFixed(2) + 'M' : '--')}
+                        ${row('Avg Volume (10d)', trading.averageVolume10days ? (trading.averageVolume10days / 1000000).toFixed(2) + 'M' : '--')}
+                        ${row('Beta', risk.beta || '--')}
+                        ${row('Bid', trading.bid ? '$' + trading.bid.toFixed(2) : '--')}
+                        ${row('Ask', trading.ask ? '$' + trading.ask.toFixed(2) : '--')}
+                        ${row('Shares Outstanding', valuation.sharesOutstanding || '--')}
+                        ${row('Float', valuation.floatShares || '--')}
+                    </table>
+                    
+                    <!-- 7. Debt & Liquidity -->
+                    <div class="fin-section-header">Debt & Liquidity</div>
+                    <table class="metrics-table">
+                        ${row('Total Debt', debt.totalDebt || '--')}
+                        ${row('Total Cash', debt.totalCash || '--')}
+                        ${row('Cash per Share', debt.totalCashPerShare || '--')}
+                        ${row('Debt to Equity', debt.debtToEquity || ratios.debtToEquity || '--')}
+                        ${row('Current Ratio', debt.currentRatio || ratios.currentRatio || '--')}
+                        ${row('Quick Ratio', debt.quickRatio || ratios.quickRatio || '--')}
+                        ${row('Free Cash Flow', debt.freeCashflow || '--')}
+                        ${row('Operating Cash Flow', debt.operatingCashflow || '--')}
+                    </table>
+                    
+                    <!-- 8. Dividend Information -->
                     <div class="fin-section-header">Dividend Information</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Dividend Yield</span>
-                        <span class="metric-value">${dividends.dividendYield || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Payout Ratio</span>
-                        <span class="metric-value">${dividends.payoutRatio || '--'}</span>
-                    </div>
+                    <table class="metrics-table">
+                        ${row('Dividend Rate', dividends.dividendRate || '--')}
+                        ${row('Dividend Yield', dividends.dividendYield || '--')}
+                        ${row('Payout Ratio', dividends.payoutRatio || '--')}
+                        ${row('5Y Avg Yield', dividends.fiveYearAvgDividendYield || '--')}
+                        ${row('Ex-Dividend Date', dividends.exDividendDate ? new Date(dividends.exDividendDate * 1000).toLocaleDateString() : '--')}
+                    </table>
                 </div>
             `;
             
@@ -1350,23 +1331,19 @@
             `;
         }
 
-        // Search functionality - adds to watchlist
+        // Search functionality - adds to watchlist and fetches fresh data
         document.getElementById('searchInput').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter') {
                 const ticker = e.target.value.toUpperCase().trim();
                 if (!ticker) return;
                 
-                // Check if already in watchlist - if so just select it, don't re-fetch
-                if (state.watchlist.has(ticker)) {
-                    selectTicker(ticker);
-                    e.target.value = '';
-                    return;
-                }
-                
-                // Try to load the ticker fresh from API
+                // Always fetch fresh data for watchlist additions
                 const data = await loadSingleTicker(ticker);
                 if (data) {
-                    state.watchlist.add(ticker);
+                    // Add to watchlist if not already there
+                    if (!state.watchlist.has(ticker)) {
+                        state.watchlist.add(ticker);
+                    }
                     state.sections['Watchlist'].expanded = true;
                     renderSections();
                     selectTicker(ticker);
@@ -1380,14 +1357,12 @@
         // Auto refresh every 60 seconds
         setInterval(() => {
             state.cache.clear();
-            // Reload only already-loaded sections
             const promises = [];
             Object.entries(state.sections).forEach(([name, section]) => {
                 if (section.loaded && !section.isWatchlist) {
                     promises.push(loadSection(name));
                 }
             });
-            // Also reload watchlist tickers
             if (state.watchlist.size > 0) {
                 promises.push(fetchWithCache(`${API_BASE}/ticker?ticker=${Array.from(state.watchlist).join(',')}`).then(data => {
                     if (Array.isArray(data)) {
