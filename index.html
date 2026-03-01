@@ -662,10 +662,44 @@
             color: var(--text-secondary);
             font-size: 11px;
         }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.error {
+            border-color: var(--negative);
+            color: var(--negative);
+        }
+
+        .toast.success {
+            border-color: var(--positive);
+            color: var(--positive);
+        }
     </style>
 <base target="_blank">
 </head>
 <body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
     <!-- Ticker Tape -->
     <div class="ticker-tape" id="tickerTape">
         <div class="ticker-content" id="tickerContent">
@@ -750,8 +784,8 @@
             data: {},
             selectedTicker: null,
             loadedSections: new Set(),
-            loadingSections: new Set(), // Track sections currently loading
-            watchlist: new Set(), // Stores tickers added via search
+            loadingSections: new Set(),
+            watchlist: new Set(),
             sections: {
                 'Watchlist': {
                     expanded: true,
@@ -786,17 +820,17 @@
                 },
                 'Innovation ETFs': {
                     expanded: false,
-                    tickers: ['ARKK', 'ARKQ', 'ARKW', 'ARKG', 'ARKF', 'ARKX', 'UFO', 'SMH', 'QTUM', 'CLOU', 'BOTZ', 'LIT', 'ICLN', 'QCLN'],
+                    tickers: ['ARKK', 'ARKQ', 'ARKW', 'ARKG', 'ARKF', 'SMH', 'BOTZ', 'LIT', 'ICLN', 'QCLN'],
                     loaded: false
                 },
                 'Tech Stocks': {
                     expanded: false,
-                    tickers: ['NVDA', 'GOOGL', 'AVGO', 'AMD', 'CRM', 'PLTR', 'INTC', 'SNOW', 'COIN', 'XYZ', 'SOFI', 'OSCR', 'ROOT', 'RKLB', 'ASTS', 'AI', 'BBAI', 'BMNR', 'MARA', 'IONQ', 'QUBT', 'IREN', 'NBIS', 'WMT', 'HOOD', 'NET'],
+                    tickers: ['NVDA', 'TSLA', 'AVGO', 'AMD', 'CRM', 'PLTR', 'INTC', 'SNOW', 'COIN', 'SQ', 'SOFI', 'RKLB', 'ASTS', 'AI', 'PATH', 'MSTR', 'MARA', 'RIOT', 'HOOD', 'NET'],
                     loaded: false
                 },
                 'Crypto': {
                     expanded: false,
-                    tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'DOGE-USD', 'SUI-USD', 'LINK-USD', 'POL-USD', 'UNI-USD', 'AAVE-USD', 'XRP-USD'],
+                    tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'MATIC-USD', 'UNI-USD', 'AAVE-USD', 'CRV-USD'],
                     loaded: false
                 },
                 'Bonds & Rates': {
@@ -808,6 +842,16 @@
         };
 
         const API_BASE = 'https://mini-finapi.vercel.app/api';
+
+        // Toast notification
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
 
         // Helper to parse percentage strings
         function parsePercent(str) {
@@ -830,12 +874,32 @@
             return val !== null && val !== undefined ? val : defaultVal;
         }
 
+        // Fetch with timeout and better error handling
+        async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                throw error;
+            }
+        }
+
         // Cache utility
         async function fetchWithCache(url) {
             if (state.cache.has(url)) return state.cache.get(url);
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const response = await fetchWithTimeout(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 const data = await response.json();
                 state.cache.set(url, data);
                 setTimeout(() => state.cache.delete(url), 60000);
@@ -874,40 +938,59 @@
                 return;
             }
             
-            // Mark as loading
             state.loadingSections.add(sectionName);
-            renderSections(); // Re-render to show loading state
+            renderSections();
             
             try {
                 const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${section.tickers.join(',')}`);
-                if (Array.isArray(data)) {
-                    data.forEach(d => {
-                        if (d.ticker) state.data[d.ticker] = d;
-                    });
-                    section.loaded = true;
-                    state.loadedSections.add(sectionName);
-                }
+                // Handle both array and object responses
+                const tickerData = Array.isArray(data) ? data : [data];
+                tickerData.forEach(d => {
+                    if (d.ticker) state.data[d.ticker] = d;
+                });
+                section.loaded = true;
+                state.loadedSections.add(sectionName);
             } catch (e) {
                 console.error(`Failed to load section ${sectionName}:`, e);
+                showToast(`Failed to load ${sectionName}: ${e.message}`);
             } finally {
                 state.loadingSections.delete(sectionName);
-                renderSections(); // Re-render to show data
+                renderSections();
             }
         }
 
         // Load single ticker (for watchlist) - ALWAYS fetches fresh
         async function loadSingleTicker(ticker) {
             try {
-                // Always fetch fresh for watchlist additions
-                const response = await fetch(`${API_BASE}/ticker?ticker=${ticker}`);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                if (Array.isArray(data) && data[0]) {
-                    state.data[ticker] = data[0];
-                    return data[0];
+                console.log(`Fetching ticker: ${ticker}`);
+                const response = await fetchWithTimeout(`${API_BASE}/ticker?ticker=${ticker}`, {}, 15000);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
+                
+                const data = await response.json();
+                console.log(`Response for ${ticker}:`, data);
+                
+                // Handle both array and object responses
+                let tickerData;
+                if (Array.isArray(data)) {
+                    tickerData = data[0];
+                } else if (data && typeof data === 'object') {
+                    tickerData = data;
+                } else {
+                    throw new Error('Invalid response format');
+                }
+                
+                if (!tickerData || !tickerData.ticker) {
+                    throw new Error('No data found for ticker');
+                }
+                
+                state.data[ticker] = tickerData;
+                return tickerData;
             } catch (e) {
                 console.error(`Failed to load ticker ${ticker}:`, e);
+                showToast(`Failed to load ${ticker}: ${e.message}`);
                 return null;
             }
         }
@@ -1050,7 +1133,6 @@
             
             section.expanded = !section.expanded;
             
-            // Load data if expanding and not loaded yet (and not already loading)
             if (section.expanded && !section.loaded && !section.isWatchlist && !state.loadingSections.has(name)) {
                 await loadSection(name);
             } else {
@@ -1066,7 +1148,6 @@
             const row = document.getElementById(`row-${ticker}`);
             if (row) row.classList.add('selected');
             
-            // Ensure we have data
             if (!state.data[ticker]) {
                 const data = await loadSingleTicker(ticker);
                 if (data) renderSections();
@@ -1086,11 +1167,9 @@
             const main = data.main_info || {};
             const company = data.company_info || {};
             
-            // Badge style ticker
             document.getElementById('mainTicker').textContent = data.ticker || '--';
             document.getElementById('tickerName').textContent = main.shortName || data.shortName || '--';
             
-            // Sector/Industry below
             const sector = company.sector || main.sector || '';
             const industry = company.industry || main.industry || '';
             const sectorText = sector && industry ? `${sector} | ${industry}` : (sector || industry || '');
@@ -1372,17 +1451,22 @@
                 const ticker = e.target.value.toUpperCase().trim();
                 if (!ticker) return;
                 
+                console.log(`Searching for ticker: ${ticker}`);
+                
                 // Always fetch fresh data (no duplicate check)
                 const data = await loadSingleTicker(ticker);
                 if (data) {
+                    console.log(`Successfully loaded ${ticker}, adding to watchlist`);
                     // Add to watchlist (allow duplicates in watchlist, Set handles uniqueness)
                     state.watchlist.add(ticker);
                     state.sections['Watchlist'].expanded = true;
                     renderSections();
                     selectTicker(ticker);
                     e.target.value = '';
+                    showToast(`Added ${ticker} to watchlist`, 'success');
                 } else {
-                    alert(`Could not load ticker: ${ticker}`);
+                    console.error(`Failed to load ${ticker}`);
+                    // Error already shown by loadSingleTicker
                 }
             }
         });
@@ -1398,11 +1482,10 @@
             });
             if (state.watchlist.size > 0) {
                 promises.push(fetchWithCache(`${API_BASE}/ticker?ticker=${Array.from(state.watchlist).join(',')}`).then(data => {
-                    if (Array.isArray(data)) {
-                        data.forEach(d => {
-                            if (d.ticker) state.data[d.ticker] = d;
-                        });
-                    }
+                    const tickerData = Array.isArray(data) ? data : [data];
+                    tickerData.forEach(d => {
+                        if (d.ticker) state.data[d.ticker] = d;
+                    });
                 }).catch(() => {}));
             }
             
