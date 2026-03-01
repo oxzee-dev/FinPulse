@@ -308,6 +308,13 @@
             white-space: nowrap;
         }
 
+        .ticker-meta {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+
         .ticker-stats {
             display: flex;
             gap: 30px;
@@ -349,7 +356,7 @@
         }
 
         .grid1 {
-            flex: 2;
+            flex: 3;
             border-right: 1px solid var(--border-color);
             position: relative;
             display: flex;
@@ -357,9 +364,10 @@
         }
 
         .grid2 {
-            flex: 1;
+            flex: 0 0 320px;
             background: var(--bg-secondary);
             overflow-y: auto;
+            border-left: 1px solid var(--border-color);
         }
 
         .grid3 {
@@ -547,6 +555,62 @@
             color: var(--accent-cyan);
         }
 
+        /* Mini Cards for PE/FWD PE */
+        .mini-cards-row {
+            display: flex;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .mini-card {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .mini-card-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .mini-card-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        /* Compact Table Style for Metrics */
+        .compact-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            background: var(--bg-primary);
+        }
+
+        .compact-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .compact-table .label {
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .compact-table .value {
+            text-align: right;
+            font-family: var(--font-mono);
+            font-weight: bold;
+        }
+
         /* Scrollbars */
         ::-webkit-scrollbar {
             width: 8px;
@@ -625,6 +689,7 @@
                     <div>
                         <div class="ticker-main" id="mainTicker">--</div>
                         <div class="ticker-name" id="tickerName">Select a ticker</div>
+                        <div class="ticker-meta" id="tickerMeta"></div>
                     </div>
                 </div>
                 <div class="ticker-stats">
@@ -1014,9 +1079,15 @@
         // Update Detail Header
         function updateDetailHeader(data) {
             const main = data.main_info || {};
+            const company = data.company_info || {};
             
             document.getElementById('mainTicker').textContent = data.ticker || '--';
             document.getElementById('tickerName').textContent = main.shortName || data.shortName || '--';
+            
+            // Add sector/industry meta
+            const sector = company.sector || main.sector || '--';
+            const industry = company.industry || main.industry || '--';
+            document.getElementById('tickerMeta').textContent = `${sector} | ${industry}`;
             
             const price = main.currentPrice || 0;
             document.getElementById('mainPrice').textContent = price ? price.toFixed(2) : '--';
@@ -1090,7 +1161,6 @@
             const growth = data.growth || {};
             const debt = data.debt || {};
             const pt = data.price_targets || {};
-            const company = data.company_info || {};
             
             const currentPrice = main.currentPrice || pricePerf.currentPrice || 0;
             const ptLow = pt.targetLowPrice;
@@ -1112,6 +1182,10 @@
                 else if (recKey.includes('strong_sell')) { recClass = 'rec-strong_sell'; recText = 'STRONG SELL'; }
                 else if (recKey.includes('sell')) { recClass = 'rec-sell'; recText = 'SELL'; }
             }
+            
+            const pe = main.PE || ratios.trailingPE || '--';
+            const fwdPe = main.forwardPE || ratios.forwardPE || '--';
+            const mcap = main.marketCap || '--';
             
             const html = `
                 <div class="financial-panel">
@@ -1147,61 +1221,49 @@
                     </div>
                     ` : ''}
                     
-                    <div class="fin-section-header">Price Action</div>
-                    <div class="metric-row ${getValueBg(pricePerf.open)}">
-                        <span class="metric-label">Open</span>
-                        <span class="metric-value">$${pricePerf.open?.toFixed(2) || '--'}</span>
-                    </div>
+                    <div class="fin-section-header">Main Info</div>
                     <div class="metric-row">
-                        <span class="metric-label">Day Range</span>
-                        <span class="metric-value">$${pricePerf.dayLow?.toFixed(2) || '--'} - $${pricePerf.dayHigh?.toFixed(2) || '--'}</span>
+                        <span class="metric-label">Price</span>
+                        <span class="metric-value accent">$${currentPrice ? currentPrice.toFixed(2) : '--'}</span>
                     </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Previous Close</span>
-                        <span class="metric-value">$${pricePerf.previousClose?.toFixed(2) || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">52 Week Range</span>
-                        <span class="metric-value">$${pricePerf.fiftyTwoWeekLow?.toFixed(2) || '--'} - $${pricePerf.fiftyTwoWeekHigh?.toFixed(2) || '--'}</span>
-                    </div>
-                    <div class="metric-row ${getValueBg(trading.change_from_50DMA)}">
-                        <span class="metric-label">Distance from 50 DMA</span>
-                        <span class="metric-value ${parsePercent(trading.change_from_50DMA) >= 0 ? 'positive' : 'negative'}">${trading.change_from_50DMA || '--'}</span>
-                    </div>
-                    <div class="metric-row ${getValueBg(trading.change_from_200DMA)}">
-                        <span class="metric-label">Distance from 200 DMA</span>
-                        <span class="metric-value ${parsePercent(trading.change_from_200DMA) >= 0 ? 'positive' : 'negative'}">${trading.change_from_200DMA || '--'}</span>
-                    </div>
-                    
-                    <div class="fin-section-header">Valuation Metrics</div>
                     <div class="metric-row">
                         <span class="metric-label">Market Cap</span>
-                        <span class="metric-value accent">${main.marketCap || valuation.marketCap || '--'}</span>
+                        <span class="metric-value">${mcap}</span>
                     </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Enterprise Value</span>
-                        <span class="metric-value">${valuation.enterpriseValue || '--'}</span>
+                    
+                    <div class="mini-cards-row">
+                        <div class="mini-card">
+                            <div class="mini-card-label">P/E</div>
+                            <div class="mini-card-value">${pe}</div>
+                        </div>
+                        <div class="mini-card">
+                            <div class="mini-card-label">FWD P/E</div>
+                            <div class="mini-card-value">${fwdPe}</div>
+                        </div>
+                        <div class="mini-card">
+                            <div class="mini-card-label">PEG</div>
+                            <div class="mini-card-value">${ratios.pegRatio || growth.pegRatio || growth.trailingPegRatio || '--'}</div>
+                        </div>
                     </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Trailing P/E</span>
-                        <span class="metric-value">${main.PE || ratios.trailingPE || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Forward P/E</span>
-                        <span class="metric-value">${main.forwardPE || ratios.forwardPE || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">PEG Ratio</span>
-                        <span class="metric-value">${ratios.pegRatio || growth.pegRatio || growth.trailingPegRatio || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Price to Book</span>
-                        <span class="metric-value">${main.priceToBook || valuation.priceToBook || ratios.priceToBook || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Price to Sales</span>
-                        <span class="metric-value">${main.PS || ratios.priceToSalesTrailing12Months || valuation.priceToSalesTrailing12Months || '--'}</span>
-                    </div>
+                    
+                    <table class="compact-table">
+                        <tr>
+                            <td class="label">Revenue</td>
+                            <td class="value">${main.totalRevenue || '--'}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Net Income</td>
+                            <td class="value">${main.netIncome || '--'}</td>
+                        </tr>
+                        <tr class="${getValueBg(growth.revenueGrowth)}">
+                            <td class="label">Revenue Growth</td>
+                            <td class="value ${parsePercent(growth.revenueGrowth) >= 0 ? 'positive' : 'negative'}">${growth.revenueGrowth || '--'}</td>
+                        </tr>
+                        <tr class="${getValueBg(growth.earningsGrowth)}">
+                            <td class="label">Earnings Growth</td>
+                            <td class="value ${parsePercent(growth.earningsGrowth) >= 0 ? 'positive' : 'negative'}">${growth.earningsGrowth || '--'}</td>
+                        </tr>
+                    </table>
                     
                     <div class="fin-section-header">Trading Statistics</div>
                     <div class="metric-row">
@@ -1215,6 +1277,10 @@
                     <div class="metric-row">
                         <span class="metric-label">Beta</span>
                         <span class="metric-value">${risk.beta || risk.beta3Year || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">52 Week Range</span>
+                        <span class="metric-value">$${pricePerf.fiftyTwoWeekLow?.toFixed(2) || '--'} - $${pricePerf.fiftyTwoWeekHigh?.toFixed(2) || '--'}</span>
                     </div>
                     
                     <div class="fin-section-header">Returns & Profitability</div>
@@ -1235,20 +1301,6 @@
                         <span class="metric-value">${returns.operatingMargins || ratios.operatingMargins || '--'}</span>
                     </div>
                     
-                    <div class="fin-section-header">Growth Metrics</div>
-                    <div class="metric-row ${getValueBg(growth.revenueGrowth)}">
-                        <span class="metric-label">Revenue Growth</span>
-                        <span class="metric-value">${growth.revenueGrowth || '--'}</span>
-                    </div>
-                    <div class="metric-row ${getValueBg(growth.earningsGrowth)}">
-                        <span class="metric-label">Earnings Growth</span>
-                        <span class="metric-value">${growth.earningsGrowth || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">EPS (TTM)</span>
-                        <span class="metric-value">${earnings.trailingEps || growth.earningsPerShare || '--'}</span>
-                    </div>
-                    
                     <div class="fin-section-header">Dividend Information</div>
                     <div class="metric-row">
                         <span class="metric-label">Dividend Yield</span>
@@ -1257,16 +1309,6 @@
                     <div class="metric-row">
                         <span class="metric-label">Payout Ratio</span>
                         <span class="metric-value">${dividends.payoutRatio || '--'}</span>
-                    </div>
-                    
-                    <div class="fin-section-header">Company Information</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Sector</span>
-                        <span class="metric-value">${company.sector || main.sector || '--'}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Industry</span>
-                        <span class="metric-value">${company.industry || main.industry || '--'}</span>
                     </div>
                 </div>
             `;
@@ -1314,14 +1356,14 @@
                 const ticker = e.target.value.toUpperCase().trim();
                 if (!ticker) return;
                 
-                // Check if already in watchlist
+                // Check if already in watchlist - if so just select it, don't re-fetch
                 if (state.watchlist.has(ticker)) {
                     selectTicker(ticker);
                     e.target.value = '';
                     return;
                 }
                 
-                // Try to load the ticker
+                // Try to load the ticker fresh from API
                 const data = await loadSingleTicker(ticker);
                 if (data) {
                     state.watchlist.add(ticker);
