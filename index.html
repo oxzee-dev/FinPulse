@@ -278,7 +278,7 @@
         }
 
         .detail-header {
-            height: 70px;
+            height: 80px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
             display: flex;
@@ -289,23 +289,38 @@
 
         .ticker-info {
             display: flex;
-            align-items: center;
-            gap: 20px;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .ticker-main {
-            font-size: 28px;
+        .ticker-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ticker-badge {
+            background: var(--accent-cyan);
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 18px;
             font-weight: bold;
-            color: var(--accent-cyan);
+            font-family: var(--font-mono);
         }
 
         .ticker-name {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .ticker-sector {
+            font-size: 11px;
             color: var(--text-secondary);
-            font-size: 13px;
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 2px;
         }
 
         .ticker-stats {
@@ -640,13 +655,12 @@
             text-align: center;
         }
 
-        /* Sector/Industry in title */
-        .ticker-sector {
-            font-size: 10px;
+        /* Loading state for section */
+        .section-loading {
+            padding: 20px;
+            text-align: center;
             color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
+            font-size: 11px;
         }
     </style>
 <base target="_blank">
@@ -680,11 +694,11 @@
         <div class="ticker-detail">
             <div class="detail-header" id="detailHeader">
                 <div class="ticker-info">
-                    <div>
-                        <div class="ticker-main" id="mainTicker">--</div>
-                        <div class="ticker-name" id="tickerName">Select a ticker</div>
-                        <div class="ticker-sector" id="tickerSector"></div>
+                    <div class="ticker-title-row">
+                        <span class="ticker-badge" id="mainTicker">--</span>
+                        <span class="ticker-name" id="tickerName">Select a ticker</span>
                     </div>
+                    <div class="ticker-sector" id="tickerSector"></div>
                 </div>
                 <div class="ticker-stats">
                     <div class="stat-item">
@@ -736,6 +750,7 @@
             data: {},
             selectedTicker: null,
             loadedSections: new Set(),
+            loadingSections: new Set(), // Track sections currently loading
             watchlist: new Set(), // Stores tickers added via search
             sections: {
                 'Watchlist': {
@@ -771,17 +786,17 @@
                 },
                 'Innovation ETFs': {
                     expanded: false,
-                    tickers: ['ARKK', 'ARKQ', 'ARKW', 'ARKG', 'ARKF', 'SMH', 'BOTZ', 'LIT', 'ICLN', 'QCLN'],
+                    tickers: ['ARKK', 'ARKQ', 'ARKW', 'ARKG', 'ARKF', 'ARKX', 'UFO', 'SMH', 'QTUM', 'CLOU', 'BOTZ', 'LIT', 'ICLN', 'QCLN'],
                     loaded: false
                 },
                 'Tech Stocks': {
                     expanded: false,
-                    tickers: ['NVDA', 'TSLA', 'AVGO', 'AMD', 'CRM', 'PLTR', 'INTC', 'SNOW', 'COIN', 'SQ', 'SOFI', 'RKLB', 'ASTS', 'AI', 'PATH', 'MSTR', 'MARA', 'RIOT', 'HOOD', 'NET'],
+                    tickers: ['NVDA', 'GOOGL', 'AVGO', 'AMD', 'CRM', 'PLTR', 'INTC', 'SNOW', 'COIN', 'XYZ', 'SOFI', 'OSCR', 'ROOT', 'RKLB', 'ASTS', 'AI', 'BBAI', 'BMNR', 'MARA', 'IONQ', 'QUBT', 'IREN', 'NBIS', 'WMT', 'HOOD', 'NET'],
                     loaded: false
                 },
                 'Crypto': {
                     expanded: false,
-                    tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'MATIC-USD', 'UNI-USD', 'AAVE-USD', 'CRV-USD'],
+                    tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'DOGE-USD', 'SUI-USD', 'LINK-USD', 'POL-USD', 'UNI-USD', 'AAVE-USD', 'XRP-USD'],
                     loaded: false
                 },
                 'Bonds & Rates': {
@@ -851,11 +866,17 @@
         // Load specific section
         async function loadSection(sectionName) {
             const section = state.sections[sectionName];
-            if (!section || section.loaded || section.isWatchlist) return;
+            
+            if (!section || section.loaded || section.isWatchlist || state.loadingSections.has(sectionName)) return;
+            
             if (!section.tickers || section.tickers.length === 0) {
                 section.loaded = true;
                 return;
             }
+            
+            // Mark as loading
+            state.loadingSections.add(sectionName);
+            renderSections(); // Re-render to show loading state
             
             try {
                 const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${section.tickers.join(',')}`);
@@ -868,14 +889,19 @@
                 }
             } catch (e) {
                 console.error(`Failed to load section ${sectionName}:`, e);
+            } finally {
+                state.loadingSections.delete(sectionName);
+                renderSections(); // Re-render to show data
             }
         }
 
-        // Load single ticker (for watchlist)
+        // Load single ticker (for watchlist) - ALWAYS fetches fresh
         async function loadSingleTicker(ticker) {
-            if (state.data[ticker]) return state.data[ticker];
             try {
-                const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${ticker}`);
+                // Always fetch fresh for watchlist additions
+                const response = await fetch(`${API_BASE}/ticker?ticker=${ticker}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
                 if (Array.isArray(data) && data[0]) {
                     state.data[ticker] = data[0];
                     return data[0];
@@ -927,6 +953,16 @@
                 sectionEl.className = 'section';
                 
                 const tickerCount = section.isWatchlist ? state.watchlist.size : section.tickers.length;
+                const isLoading = state.loadingSections.has(name);
+                
+                let contentHtml = '';
+                if (section.isWatchlist && tickerCount === 0) {
+                    contentHtml = '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 11px;">Type a ticker above and press Enter to add</div>';
+                } else if (isLoading) {
+                    contentHtml = '<div class="section-loading"><span class="spinner"></span> Loading tickers...</div>';
+                } else {
+                    contentHtml = renderTickerTable(section.isWatchlist ? Array.from(state.watchlist) : section.tickers, name);
+                }
                 
                 sectionEl.innerHTML = `
                     <div class="section-header ${section.expanded ? 'active' : ''}" onclick="toggleSection('${name}')">
@@ -934,10 +970,7 @@
                         <span class="section-arrow">▶</span>
                     </div>
                     <div class="section-content ${section.expanded ? 'active' : ''}" id="section-${name.replace(/\s+/g, '-')}">
-                        ${section.isWatchlist && tickerCount === 0 ? 
-                            '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 11px;">Type a ticker above and press Enter to add</div>' :
-                            renderTickerTable(section.isWatchlist ? Array.from(state.watchlist) : section.tickers, name)
-                        }
+                        ${contentHtml}
                     </div>
                 `;
                 container.appendChild(sectionEl);
@@ -1017,11 +1050,12 @@
             
             section.expanded = !section.expanded;
             
-            if (section.expanded && !section.loaded && !section.isWatchlist) {
+            // Load data if expanding and not loaded yet (and not already loading)
+            if (section.expanded && !section.loaded && !section.isWatchlist && !state.loadingSections.has(name)) {
                 await loadSection(name);
+            } else {
+                renderSections();
             }
-            
-            renderSections();
         };
 
         // Select Ticker
@@ -1032,6 +1066,7 @@
             const row = document.getElementById(`row-${ticker}`);
             if (row) row.classList.add('selected');
             
+            // Ensure we have data
             if (!state.data[ticker]) {
                 const data = await loadSingleTicker(ticker);
                 if (data) renderSections();
@@ -1046,14 +1081,16 @@
             }
         };
 
-        // Update Detail Header
+        // Update Detail Header with Badge Style
         function updateDetailHeader(data) {
             const main = data.main_info || {};
             const company = data.company_info || {};
             
+            // Badge style ticker
             document.getElementById('mainTicker').textContent = data.ticker || '--';
             document.getElementById('tickerName').textContent = main.shortName || data.shortName || '--';
             
+            // Sector/Industry below
             const sector = company.sector || main.sector || '';
             const industry = company.industry || main.industry || '';
             const sectorText = sector && industry ? `${sector} | ${industry}` : (sector || industry || '');
@@ -1117,7 +1154,7 @@
             container.appendChild(script);
         }
 
-        // Update Financial Data Panel - Organized by API structure
+        // Update Financial Data Panel
         function updateFinancialData(data) {
             const main = data.main_info || {};
             const pricePerf = data.price_performance || {};
@@ -1199,7 +1236,6 @@
                             <span class="main-mcap">${main.marketCap || valuation.marketCap || '--'}</span>
                         </div>
                         
-                        <!-- PE Cards -->
                         <div class="pe-cards">
                             <div class="pe-card">
                                 <div class="pe-card-label">P/E</div>
@@ -1215,7 +1251,6 @@
                             </div>
                         </div>
                         
-                        <!-- Financial Summary Table -->
                         <table class="metrics-table" style="margin-top: 8px;">
                             ${row('Revenue', growth.totalRevenue || '--')}
                             ${row('Net Income', debt.netIncomeToCommon || '--')}
@@ -1331,19 +1366,17 @@
             `;
         }
 
-        // Search functionality - adds to watchlist and fetches fresh data
+        // Search functionality - ALWAYS adds to watchlist and fetches fresh
         document.getElementById('searchInput').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter') {
                 const ticker = e.target.value.toUpperCase().trim();
                 if (!ticker) return;
                 
-                // Always fetch fresh data for watchlist additions
+                // Always fetch fresh data (no duplicate check)
                 const data = await loadSingleTicker(ticker);
                 if (data) {
-                    // Add to watchlist if not already there
-                    if (!state.watchlist.has(ticker)) {
-                        state.watchlist.add(ticker);
-                    }
+                    // Add to watchlist (allow duplicates in watchlist, Set handles uniqueness)
+                    state.watchlist.add(ticker);
                     state.sections['Watchlist'].expanded = true;
                     renderSections();
                     selectTicker(ticker);
