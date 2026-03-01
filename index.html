@@ -19,11 +19,13 @@
             --border-color: #2a2a2a;
             --text-primary: #e0e0e0;
             --text-secondary: #888888;
-            --accent-blue: #00d4ff;
-            --accent-orange: #ff6600;
-            --accent-amber: #ffb000;
+            --accent-blue: #4a9eff;
+            --accent-cyan: #00d4ff;
+            --accent-warm: #ffb347;
+            --accent-amber: #ffcc00;
             --positive: #00c853;
             --negative: #ff3d00;
+            --neutral: #888888;
             --font-mono: 'Courier New', Courier, monospace;
         }
 
@@ -61,7 +63,7 @@
         }
 
         .ticker-symbol {
-            color: var(--accent-blue);
+            color: var(--accent-cyan);
             font-weight: bold;
             margin-right: 8px;
         }
@@ -104,7 +106,7 @@
             background: var(--bg-tertiary);
             border-bottom: 1px solid var(--border-color);
             font-weight: bold;
-            color: var(--accent-orange);
+            color: var(--accent-warm);
             text-transform: uppercase;
             letter-spacing: 1px;
             display: flex;
@@ -172,7 +174,7 @@
         }
 
         .section-header.active {
-            background: var(--accent-orange);
+            background: var(--accent-warm);
             color: #000;
         }
 
@@ -233,12 +235,12 @@
         }
 
         .data-table tr.selected td {
-            background: rgba(0, 212, 255, 0.1);
+            background: rgba(74, 158, 255, 0.15);
             border-left: 2px solid var(--accent-blue);
         }
 
         .ticker-cell {
-            color: var(--accent-blue);
+            color: var(--accent-cyan);
             font-weight: bold;
         }
 
@@ -294,7 +296,7 @@
         .ticker-main {
             font-size: 28px;
             font-weight: bold;
-            color: var(--accent-blue);
+            color: var(--accent-cyan);
         }
 
         .ticker-name {
@@ -374,56 +376,117 @@
             position: relative;
         }
 
-        /* Financial Data Panel */
+        /* Enhanced Financial Data Panel */
         .financial-panel {
-            padding: 12px;
+            padding: 0;
         }
 
-        .fin-section {
-            margin-bottom: 12px;
-            border: 1px solid var(--border-color);
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
             background: var(--bg-primary);
+            transition: background 0.2s;
         }
 
-        .fin-header {
+        .metric-row:hover {
+            background: var(--bg-hover);
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-weight: bold;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .metric-value.positive { color: var(--positive); }
+        .metric-value.negative { color: var(--negative); }
+        .metric-value.accent { color: var(--accent-warm); }
+
+        /* Section headers in financial panel */
+        .fin-section-header {
             background: var(--bg-tertiary);
             padding: 8px 12px;
             font-weight: bold;
-            color: var(--accent-amber);
+            color: var(--accent-warm);
             border-bottom: 1px solid var(--border-color);
             text-transform: uppercase;
             font-size: 11px;
             letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .fin-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1px;
-            background: var(--border-color);
+        /* Progress bars for price targets */
+        .pt-container {
+            width: 100%;
+            margin-top: 4px;
         }
 
-        .fin-item {
-            background: var(--bg-primary);
-            padding: 8px 12px;
+        .pt-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pt-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .pt-labels {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-        }
-
-        .fin-label {
+            font-size: 9px;
             color: var(--text-secondary);
-            font-size: 11px;
+            margin-top: 2px;
         }
 
-        .fin-value {
+        .pt-current {
+            position: absolute;
+            top: -2px;
+            width: 2px;
+            height: 10px;
+            background: var(--text-primary);
+            z-index: 5;
+        }
+
+        /* Recommendation badge */
+        .rec-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
             font-weight: bold;
-            font-family: var(--font-mono);
-            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .fin-value.positive { color: var(--positive); }
-        .fin-value.negative { color: var(--negative); }
+        .rec-strong_buy { background: rgba(0, 200, 83, 0.2); color: var(--positive); border: 1px solid var(--positive); }
+        .rec-buy { background: rgba(0, 200, 83, 0.15); color: var(--positive); }
+        .rec-hold { background: rgba(255, 179, 71, 0.2); color: var(--accent-warm); border: 1px solid var(--accent-warm); }
+        .rec-sell { background: rgba(255, 61, 0, 0.15); color: var(--negative); }
+        .rec-strong_sell { background: rgba(255, 61, 0, 0.2); color: var(--negative); border: 1px solid var(--negative); }
+
+        /* Dynamic background colors based on values */
+        .bg-positive { background: linear-gradient(90deg, rgba(0, 200, 83, 0.1) 0%, transparent 100%); }
+        .bg-negative { background: linear-gradient(90deg, rgba(255, 61, 0, 0.1) 0%, transparent 100%); }
+        .bg-neutral { background: var(--bg-primary); }
 
         /* News Section */
         .news-container {
@@ -432,7 +495,7 @@
 
         .news-header {
             font-weight: bold;
-            color: var(--accent-orange);
+            color: var(--accent-warm);
             margin-bottom: 8px;
             text-transform: uppercase;
             font-size: 11px;
@@ -481,7 +544,7 @@
         }
 
         .news-source {
-            color: var(--accent-blue);
+            color: var(--accent-cyan);
         }
 
         /* Scrollbars */
@@ -547,7 +610,7 @@
             </div>
             
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search ticker (e.g. NVDA)...">
+                <input type="text" id="searchInput" placeholder="Search ticker + Enter (e.g. NVDA)...">
             </div>
 
             <div class="sections-container" id="sectionsContainer">
@@ -608,47 +671,64 @@
     </div>
 
     <script>
-        // State Management
+        // State Management - ONLY Market Outlook loaded initially
         const state = {
             cache: new Map(),
             data: {},
             selectedTicker: null,
+            loadedSections: new Set(), // Track which sections have been loaded
+            watchlist: new Set(),
             sections: {
+                'Watchlist': {
+                    expanded: true,
+                    tickers: [],
+                    isWatchlist: true,
+                    loaded: true // Watchlist is always "loaded" but starts empty
+                },
                 'Market Outlook': {
                     expanded: true,
-                    tickers: ['SPY', 'QQQ', 'IWM', 'DIA', 'VIX']
+                    tickers: ['SPY', 'QQQ', 'IWM', 'DIA', 'VIX'],
+                    loaded: false
                 },
                 'US Indices': {
                     expanded: false,
-                    tickers: ['^GSPC', '^DJI', '^IXIC', '^RUT', '^VIX', '^TNX', '^FVX', '^TYX']
+                    tickers: ['^GSPC', '^DJI', '^IXIC', '^RUT', '^VIX', '^TNX', '^FVX', '^TYX'],
+                    loaded: false
                 },
                 'World Indices': {
                     expanded: false,
-                    tickers: ['^N225', '^FTSE', '^GDAXI', '^FCHI', '^HSI', '000001.SS', '^AXJO', '^KS11']
+                    tickers: ['^N225', '^FTSE', '^GDAXI', '^FCHI', '^HSI', '000001.SS', '^AXJO', '^KS11'],
+                    loaded: false
                 },
                 'Sectors': {
                     expanded: false,
-                    tickers: ['XLF', 'XLK', 'XLE', 'XLV', 'XLI', 'XLP', 'XLY', 'XLU', 'XLRE', 'XLC', 'XLB']
+                    tickers: ['XLF', 'XLK', 'XLE', 'XLV', 'XLI', 'XLP', 'XLY', 'XLU', 'XLRE', 'XLC', 'XLB'],
+                    loaded: false
                 },
                 'Global Assets': {
                     expanded: false,
-                    tickers: ['GLD', 'SLV', 'USO', 'UNG', 'DBA', 'UUP', 'FXE', 'FXY', 'FXB']
+                    tickers: ['GLD', 'SLV', 'USO', 'UNG', 'DBA', 'UUP', 'FXE', 'FXY', 'FXB'],
+                    loaded: false
                 },
                 'Innovation ETFs': {
                     expanded: false,
-                    tickers: ['ARKK', 'ARKQ', 'ARKW', 'ARKG', 'ARKF', 'SMH', 'BOTZ', 'LIT', 'ICLN', 'QCLN']
+                    tickers: ['ARKK', 'ARKQ', 'ARKW', 'ARKG', 'ARKF', 'SMH', 'BOTZ', 'LIT', 'ICLN', 'QCLN'],
+                    loaded: false
                 },
                 'Tech Stocks': {
                     expanded: false,
-                    tickers: ['NVDA', 'TSLA', 'AVGO', 'AMD', 'CRM', 'PLTR', 'INTC', 'SNOW', 'COIN', 'SQ', 'SOFI', 'RKLB', 'ASTS', 'AI', 'PATH', 'MSTR', 'MARA', 'RIOT', 'HOOD', 'NET']
+                    tickers: ['NVDA', 'TSLA', 'AVGO', 'AMD', 'CRM', 'PLTR', 'INTC', 'SNOW', 'COIN', 'SQ', 'SOFI', 'RKLB', 'ASTS', 'AI', 'PATH', 'MSTR', 'MARA', 'RIOT', 'HOOD', 'NET'],
+                    loaded: false
                 },
                 'Crypto': {
                     expanded: false,
-                    tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'MATIC-USD', 'UNI-USD', 'AAVE-USD', 'CRV-USD']
+                    tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'MATIC-USD', 'UNI-USD', 'AAVE-USD', 'CRV-USD'],
+                    loaded: false
                 },
                 'Bonds & Rates': {
                     expanded: false,
-                    tickers: ['TLT', 'IEF', 'SHY', 'HYG', 'LQD', 'BND', 'AGG', 'TIP', 'MUB', 'EMB']
+                    tickers: ['TLT', 'IEF', 'SHY', 'HYG', 'LQD', 'BND', 'AGG', 'TIP', 'MUB', 'EMB'],
+                    loaded: false
                 }
             }
         };
@@ -676,6 +756,17 @@
             return val !== null && val !== undefined ? val : defaultVal;
         }
 
+        // Determine background class based on value
+        function getValueBg(value, type = 'change') {
+            if (type === 'change') {
+                const num = parsePercent(value);
+                if (num > 0) return 'bg-positive';
+                if (num < 0) return 'bg-negative';
+                return 'bg-neutral';
+            }
+            return 'bg-neutral';
+        }
+
         // Cache utility
         async function fetchWithCache(url) {
             if (state.cache.has(url)) return state.cache.get(url);
@@ -692,42 +783,70 @@
             }
         }
 
-        // Initialize
+        // Initialize - ONLY load Market Outlook initially
         async function init() {
-            await loadAllData();
-            renderTickerTape();
-            renderSections();
-            
-            // Auto-select first ticker from Market Outlook
-            const firstTicker = state.sections['Market Outlook'].tickers[0];
-            if (firstTicker && state.data[firstTicker]) {
-                selectTicker(firstTicker);
-            }
-        }
-
-        // Load all ticker data
-        async function loadAllData() {
-            const allTickers = Object.values(state.sections).flatMap(s => s.tickers);
-            const uniqueTickers = [...new Set(allTickers)];
-            
-            // Load in batches of 10 to avoid URL length issues
-            const batchSize = 10;
-            for (let i = 0; i < uniqueTickers.length; i += batchSize) {
-                const batch = uniqueTickers.slice(i, i + batchSize);
-                try {
-                    const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${batch.join(',')}`);
-                    if (Array.isArray(data)) {
-                        data.forEach(d => {
-                            if (d.ticker) state.data[d.ticker] = d;
-                        });
-                    }
-                } catch (e) {
-                    console.error(`Failed to load batch ${i}:`, e);
+            try {
+                // Load only Market Outlook on startup
+                await loadSection('Market Outlook');
+                
+                renderTickerTape();
+                renderSections();
+                
+                // Auto-select first ticker from Market Outlook
+                const firstTicker = state.sections['Market Outlook'].tickers[0];
+                if (firstTicker && state.data[firstTicker]) {
+                    selectTicker(firstTicker);
                 }
+            } catch (e) {
+                console.error('Init failed:', e);
+                document.getElementById('tickerContent').innerHTML = '<span style="padding: 0 20px; color: var(--negative);">Failed to load data</span>';
             }
         }
 
-        // Render Ticker Tape
+        // Load specific section
+        async function loadSection(sectionName) {
+            const section = state.sections[sectionName];
+            
+            // Skip if already loaded or watchlist
+            if (!section || section.loaded || section.isWatchlist) return;
+            
+            // Skip if no tickers
+            if (!section.tickers || section.tickers.length === 0) {
+                section.loaded = true;
+                return;
+            }
+            
+            try {
+                const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${section.tickers.join(',')}`);
+                if (Array.isArray(data)) {
+                    data.forEach(d => {
+                        if (d.ticker) state.data[d.ticker] = d;
+                    });
+                    section.loaded = true;
+                    state.loadedSections.add(sectionName);
+                }
+            } catch (e) {
+                console.error(`Failed to load section ${sectionName}:`, e);
+            }
+        }
+
+        // Load single ticker (for watchlist)
+        async function loadSingleTicker(ticker) {
+            if (state.data[ticker]) return state.data[ticker];
+            
+            try {
+                const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${ticker}`);
+                if (Array.isArray(data) && data[0]) {
+                    state.data[ticker] = data[0];
+                    return data[0];
+                }
+            } catch (e) {
+                console.error(`Failed to load ticker ${ticker}:`, e);
+                return null;
+            }
+        }
+
+        // Render Ticker Tape - only from loaded data
         function renderTickerTape() {
             const tapeTickers = ['SPY', 'QQQ', 'IWM', 'DIA', 'GLD', 'TLT', 'VIX', 'AAPL', 'TSLA', 'NVDA'];
             const content = document.getElementById('tickerContent');
@@ -752,7 +871,9 @@
             }).filter(Boolean).join('');
             
             if (items) {
-                content.innerHTML = items + items; // Duplicate for seamless loop
+                content.innerHTML = items + items;
+            } else {
+                content.innerHTML = '<span style="padding: 0 20px; color: var(--text-secondary);">Loading...</span>';
             }
         }
 
@@ -764,13 +885,19 @@
             Object.entries(state.sections).forEach(([name, section]) => {
                 const sectionEl = document.createElement('div');
                 sectionEl.className = 'section';
+                
+                const tickerCount = section.isWatchlist ? state.watchlist.size : section.tickers.length;
+                
                 sectionEl.innerHTML = `
                     <div class="section-header ${section.expanded ? 'active' : ''}" onclick="toggleSection('${name}')">
-                        <span class="section-title">${name}</span>
+                        <span class="section-title">${name} ${section.isWatchlist ? `(${tickerCount})` : ''}</span>
                         <span class="section-arrow">▶</span>
                     </div>
                     <div class="section-content ${section.expanded ? 'active' : ''}" id="section-${name.replace(/\s+/g, '-')}">
-                        ${renderTickerTable(section.tickers)}
+                        ${section.isWatchlist && tickerCount === 0 ? 
+                            '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 11px;">Type a ticker above and press Enter to add</div>' :
+                            renderTickerTable(section.isWatchlist ? Array.from(state.watchlist) : section.tickers, name)
+                        }
                     </div>
                 `;
                 container.appendChild(sectionEl);
@@ -778,15 +905,19 @@
         }
 
         // Render Ticker Table
-        function renderTickerTable(tickers) {
-            if (!tickers.length) return '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">No tickers</div>';
+        function renderTickerTable(tickers, sectionName) {
+            if (!tickers || tickers.length === 0) {
+                return '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">No tickers</div>';
+            }
             
             const rows = tickers.map(ticker => {
                 const data = state.data[ticker];
                 if (!data) {
                     return `<tr onclick="selectTicker('${ticker}')" id="row-${ticker}">
                         <td class="ticker-cell">${ticker}</td>
-                        <td colspan="5" class="text-center" style="color: var(--text-secondary);">Loading...</td>
+                        <td colspan="5" class="text-center" style="color: var(--text-secondary);">
+                            <span class="spinner"></span> Loading...
+                        </td>
                     </tr>`;
                 }
                 
@@ -840,8 +971,17 @@
         }
 
         // Toggle Section
-        window.toggleSection = function(name) {
-            state.sections[name].expanded = !state.sections[name].expanded;
+        window.toggleSection = async function(name) {
+            const section = state.sections[name];
+            if (!section) return;
+            
+            section.expanded = !section.expanded;
+            
+            // Load data if expanding and not loaded yet
+            if (section.expanded && !section.loaded && !section.isWatchlist) {
+                await loadSection(name);
+            }
+            
             renderSections();
         };
 
@@ -856,13 +996,9 @@
             
             // Ensure we have data
             if (!state.data[ticker]) {
-                try {
-                    const fresh = await fetchWithCache(`${API_BASE}/ticker?ticker=${ticker}`);
-                    if (Array.isArray(fresh) && fresh[0]) {
-                        state.data[ticker] = fresh[0];
-                    }
-                } catch (e) {
-                    console.error('Failed to fetch ticker:', e);
+                const data = await loadSingleTicker(ticker);
+                if (data) {
+                    renderSections();
                 }
             }
             
@@ -878,7 +1014,6 @@
         // Update Detail Header
         function updateDetailHeader(data) {
             const main = data.main_info || {};
-            const pricePerf = data.price_performance || {};
             
             document.getElementById('mainTicker').textContent = data.ticker || '--';
             document.getElementById('tickerName').textContent = main.shortName || data.shortName || '--';
@@ -901,12 +1036,10 @@
             const container = document.getElementById('tradingviewChart');
             container.innerHTML = '';
             
-            // Determine symbol format for TradingView
             let symbol = ticker;
             if (ticker.includes('-USD')) {
                 symbol = `COINBASE:${ticker.replace('-USD', 'USD')}`;
             } else if (ticker.startsWith('^')) {
-                // Indices
                 symbol = `INDEX:${ticker.substring(1)}`;
             } else {
                 symbol = `NASDAQ:${ticker}`;
@@ -953,96 +1086,192 @@
             const returns = data.returns || {};
             const risk = data.risk || {};
             const dividends = data.dividends || {};
+            const earnings = data.earnings || {};
+            const growth = data.growth || {};
+            const debt = data.debt || {};
+            const pt = data.price_targets || {};
+            const company = data.company_info || {};
             
-            const sections = [];
+            const currentPrice = main.currentPrice || pricePerf.currentPrice || 0;
+            const ptLow = pt.targetLowPrice;
+            const ptHigh = pt.targetHighPrice;
+            const ptMean = pt.targetMeanPrice;
             
-            // Price Action
-            sections.push({
-                title: 'Price Action',
-                items: [
-                    { label: 'Open', value: pricePerf.open ? pricePerf.open.toFixed(2) : '--' },
-                    { label: 'High', value: pricePerf.dayHigh ? pricePerf.dayHigh.toFixed(2) : '--' },
-                    { label: 'Low', value: pricePerf.dayLow ? pricePerf.dayLow.toFixed(2) : '--' },
-                    { label: 'Previous Close', value: pricePerf.previousClose ? pricePerf.previousClose.toFixed(2) : '--' },
-                    { label: '52W High', value: pricePerf.fiftyTwoWeekHigh ? pricePerf.fiftyTwoWeekHigh.toFixed(2) : '--' },
-                    { label: '52W Low', value: pricePerf.fiftyTwoWeekLow ? pricePerf.fiftyTwoWeekLow.toFixed(2) : '--' }
-                ]
-            });
+            let ptPercent = 50;
+            if (ptLow && ptHigh && currentPrice) {
+                ptPercent = ((currentPrice - ptLow) / (ptHigh - ptLow)) * 100;
+                ptPercent = Math.max(0, Math.min(100, ptPercent));
+            }
             
-            // Valuation
-            sections.push({
-                title: 'Valuation',
-                items: [
-                    { label: 'Market Cap', value: main.marketCap || valuation.marketCap || '--' },
-                    { label: 'P/E Ratio', value: main.PE || ratios.trailingPE || '--' },
-                    { label: 'Forward P/E', value: main.forwardPE || ratios.forwardPE || '--' },
-                    { label: 'PEG Ratio', value: ratios.pegRatio || '--' },
-                    { label: 'Price/Book', value: main.priceToBook || valuation.priceToBook || ratios.priceToBook || '--' },
-                    { label: 'Price/Sales', value: main.PS || ratios.priceToSalesTrailing12Months || '--' }
-                ]
-            });
+            const recKey = main.recommendation || pt.recommendationKey;
+            let recClass = 'rec-hold';
+            let recText = 'HOLD';
+            if (recKey) {
+                if (recKey.includes('strong_buy')) { recClass = 'rec-strong_buy'; recText = 'STRONG BUY'; }
+                else if (recKey.includes('buy')) { recClass = 'rec-buy'; recText = 'BUY'; }
+                else if (recKey.includes('strong_sell')) { recClass = 'rec-strong_sell'; recText = 'STRONG SELL'; }
+                else if (recKey.includes('sell')) { recClass = 'rec-sell'; recText = 'SELL'; }
+            }
             
-            // Technicals
-            sections.push({
-                title: 'Technicals',
-                items: [
-                    { label: '50 DMA', value: trading.fiftyDayAverage ? trading.fiftyDayAverage.toFixed(2) : '--' },
-                    { label: '200 DMA', value: trading.twoHundredDayAverage ? trading.twoHundredDayAverage.toFixed(2) : '--' },
-                    { label: 'Dist from 50D', value: trading.change_from_50DMA || '--', color: true },
-                    { label: 'Dist from 200D', value: trading.change_from_200DMA || '--', color: true },
-                    { label: 'Beta', value: risk.beta || risk.beta3Year || '--' },
-                    { label: 'Volume', value: trading.volume ? (trading.volume / 1000000).toFixed(1) + 'M' : '--' }
-                ]
-            });
-            
-            // Returns & Margins
-            sections.push({
-                title: 'Returns & Margins',
-                items: [
-                    { label: 'ROA', value: returns.returnOnAssets || ratios.returnOnAssets || '--' },
-                    { label: 'ROE', value: returns.returnOnEquity || ratios.returnOnEquity || '--' },
-                    { label: 'Profit Margin', value: returns.profitMargins || ratios.profitMargins || '--' },
-                    { label: 'Operating Margin', value: returns.operatingMargins || ratios.operatingMargins || '--' },
-                    { label: 'Gross Margin', value: returns.grossMargins || '--' },
-                    { label: 'EBITDA Margin', value: returns.ebitdaMargins || '--' }
-                ]
-            });
-            
-            // Dividends
-            sections.push({
-                title: 'Dividends',
-                items: [
-                    { label: 'Dividend Rate', value: dividends.dividendRate || '--' },
-                    { label: 'Dividend Yield', value: dividends.dividendYield || '--' },
-                    { label: 'Payout Ratio', value: dividends.payoutRatio || '--' },
-                    { label: '5Y Avg Yield', value: dividends.fiveYearAvgDividendYield || '--' },
-                    { label: 'Ex-Div Date', value: dividends.exDividendDate ? new Date(dividends.exDividendDate * 1000).toLocaleDateString() : '--' },
-                    { label: 'Trailing Yield', value: dividends.trailingAnnualDividendYield || '--' }
-                ]
-            });
-            
-            const container = document.getElementById('financialData');
-            container.innerHTML = sections.map(sec => `
-                <div class="fin-section">
-                    <div class="fin-header">${sec.title}</div>
-                    <div class="fin-grid">
-                        ${sec.items.map(item => {
-                            let val = item.value;
-                            let colorClass = '';
-                            if (item.color && typeof val === 'string' && val.includes('%')) {
-                                const num = parsePercent(val);
-                                colorClass = num >= 0 ? 'positive' : 'negative';
-                            }
-                            return `
-                                <div class="fin-item">
-                                    <span class="fin-label">${item.label}</span>
-                                    <span class="fin-value ${colorClass}">${val}</span>
-                                </div>
-                            `;
-                        }).join('')}
+            const html = `
+                <div class="financial-panel">
+                    <div class="fin-section-header">Price Targets & Analyst Rating</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Analyst Rating</span>
+                        <span class="metric-value"><span class="rec-badge ${recClass}">${recText}</span></span>
+                    </div>
+                    ${ptLow && ptHigh ? `
+                    <div class="metric-row" style="flex-direction: column; align-items: stretch;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span class="metric-label">Price Target Range</span>
+                            <span class="metric-value accent">$${ptLow.toFixed(2)} - $${ptHigh.toFixed(2)}</span>
+                        </div>
+                        <div class="pt-container">
+                            <div class="pt-bar-bg">
+                                <div class="pt-bar-fill" style="width: ${ptPercent}%; background: linear-gradient(90deg, var(--negative) 0%, var(--accent-warm) 50%, var(--positive) 100%);"></div>
+                                <div class="pt-current" style="left: ${ptPercent}%;"></div>
+                            </div>
+                            <div class="pt-labels">
+                                <span>Low: $${ptLow.toFixed(2)}</span>
+                                <span style="color: var(--accent-cyan); font-weight: bold;">Current: $${currentPrice.toFixed(2)}</span>
+                                <span>High: $${ptHigh.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        ${ptMean ? `<div style="text-align: center; margin-top: 4px; font-size: 10px; color: var(--text-secondary);">Mean Target: $${ptMean.toFixed(2)} (${((ptMean/currentPrice-1)*100).toFixed(1)}%)</div>` : ''}
+                    </div>
+                    ` : ''}
+                    ${pt.numberOfAnalystOpinions ? `
+                    <div class="metric-row">
+                        <span class="metric-label">Analyst Coverage</span>
+                        <span class="metric-value">${pt.numberOfAnalystOpinions} firms</span>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="fin-section-header">Price Action</div>
+                    <div class="metric-row ${getValueBg(pricePerf.open)}">
+                        <span class="metric-label">Open</span>
+                        <span class="metric-value">$${pricePerf.open?.toFixed(2) || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Day Range</span>
+                        <span class="metric-value">$${pricePerf.dayLow?.toFixed(2) || '--'} - $${pricePerf.dayHigh?.toFixed(2) || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Previous Close</span>
+                        <span class="metric-value">$${pricePerf.previousClose?.toFixed(2) || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">52 Week Range</span>
+                        <span class="metric-value">$${pricePerf.fiftyTwoWeekLow?.toFixed(2) || '--'} - $${pricePerf.fiftyTwoWeekHigh?.toFixed(2) || '--'}</span>
+                    </div>
+                    <div class="metric-row ${getValueBg(trading.change_from_50DMA)}">
+                        <span class="metric-label">Distance from 50 DMA</span>
+                        <span class="metric-value ${parsePercent(trading.change_from_50DMA) >= 0 ? 'positive' : 'negative'}">${trading.change_from_50DMA || '--'}</span>
+                    </div>
+                    <div class="metric-row ${getValueBg(trading.change_from_200DMA)}">
+                        <span class="metric-label">Distance from 200 DMA</span>
+                        <span class="metric-value ${parsePercent(trading.change_from_200DMA) >= 0 ? 'positive' : 'negative'}">${trading.change_from_200DMA || '--'}</span>
+                    </div>
+                    
+                    <div class="fin-section-header">Valuation Metrics</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Market Cap</span>
+                        <span class="metric-value accent">${main.marketCap || valuation.marketCap || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Enterprise Value</span>
+                        <span class="metric-value">${valuation.enterpriseValue || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Trailing P/E</span>
+                        <span class="metric-value">${main.PE || ratios.trailingPE || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Forward P/E</span>
+                        <span class="metric-value">${main.forwardPE || ratios.forwardPE || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">PEG Ratio</span>
+                        <span class="metric-value">${ratios.pegRatio || growth.pegRatio || growth.trailingPegRatio || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Price to Book</span>
+                        <span class="metric-value">${main.priceToBook || valuation.priceToBook || ratios.priceToBook || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Price to Sales</span>
+                        <span class="metric-value">${main.PS || ratios.priceToSalesTrailing12Months || valuation.priceToSalesTrailing12Months || '--'}</span>
+                    </div>
+                    
+                    <div class="fin-section-header">Trading Statistics</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Volume</span>
+                        <span class="metric-value">${trading.volume ? (trading.volume / 1000000).toFixed(2) + 'M' : '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Volume (10d)</span>
+                        <span class="metric-value">${trading.averageVolume10days ? (trading.averageVolume10days / 1000000).toFixed(2) + 'M' : '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Beta</span>
+                        <span class="metric-value">${risk.beta || risk.beta3Year || '--'}</span>
+                    </div>
+                    
+                    <div class="fin-section-header">Returns & Profitability</div>
+                    <div class="metric-row ${getValueBg(returns.returnOnAssets)}">
+                        <span class="metric-label">Return on Assets</span>
+                        <span class="metric-value">${returns.returnOnAssets || ratios.returnOnAssets || '--'}</span>
+                    </div>
+                    <div class="metric-row ${getValueBg(returns.returnOnEquity)}">
+                        <span class="metric-label">Return on Equity</span>
+                        <span class="metric-value">${returns.returnOnEquity || ratios.returnOnEquity || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Profit Margin</span>
+                        <span class="metric-value">${returns.profitMargins || ratios.profitMargins || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Operating Margin</span>
+                        <span class="metric-value">${returns.operatingMargins || ratios.operatingMargins || '--'}</span>
+                    </div>
+                    
+                    <div class="fin-section-header">Growth Metrics</div>
+                    <div class="metric-row ${getValueBg(growth.revenueGrowth)}">
+                        <span class="metric-label">Revenue Growth</span>
+                        <span class="metric-value">${growth.revenueGrowth || '--'}</span>
+                    </div>
+                    <div class="metric-row ${getValueBg(growth.earningsGrowth)}">
+                        <span class="metric-label">Earnings Growth</span>
+                        <span class="metric-value">${growth.earningsGrowth || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">EPS (TTM)</span>
+                        <span class="metric-value">${earnings.trailingEps || growth.earningsPerShare || '--'}</span>
+                    </div>
+                    
+                    <div class="fin-section-header">Dividend Information</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Dividend Yield</span>
+                        <span class="metric-value">${dividends.dividendYield || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Payout Ratio</span>
+                        <span class="metric-value">${dividends.payoutRatio || '--'}</span>
+                    </div>
+                    
+                    <div class="fin-section-header">Company Information</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Sector</span>
+                        <span class="metric-value">${company.sector || main.sector || '--'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Industry</span>
+                        <span class="metric-value">${company.industry || main.industry || '--'}</span>
                     </div>
                 </div>
-            `).join('');
+            `;
+            
+            document.getElementById('financialData').innerHTML = html;
         }
 
         // Update News
@@ -1053,7 +1282,7 @@
             if (!news.length) {
                 container.innerHTML = `
                     <div class="news-container">
-                        <div class="news-header">Recent News • ${data.ticker}</div>
+                        <div class="news-header">Recent News</div>
                         <div style="padding: 20px; color: var(--text-secondary); text-align: center;">No recent news available</div>
                     </div>
                 `;
@@ -1079,30 +1308,55 @@
             `;
         }
 
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toUpperCase();
-            if (!term) {
-                renderSections();
-                return;
-            }
-            
-            // Find and expand sections containing match
-            Object.entries(state.sections).forEach(([name, section]) => {
-                const hasMatch = section.tickers.some(t => t.includes(term));
-                if (hasMatch) {
-                    state.sections[name].expanded = true;
-                } else {
-                    state.sections[name].expanded = false;
+        // Search functionality - adds to watchlist
+        document.getElementById('searchInput').addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const ticker = e.target.value.toUpperCase().trim();
+                if (!ticker) return;
+                
+                // Check if already in watchlist
+                if (state.watchlist.has(ticker)) {
+                    selectTicker(ticker);
+                    e.target.value = '';
+                    return;
                 }
-            });
-            renderSections();
+                
+                // Try to load the ticker
+                const data = await loadSingleTicker(ticker);
+                if (data) {
+                    state.watchlist.add(ticker);
+                    state.sections['Watchlist'].expanded = true;
+                    renderSections();
+                    selectTicker(ticker);
+                    e.target.value = '';
+                } else {
+                    alert(`Could not load ticker: ${ticker}`);
+                }
+            }
         });
 
         // Auto refresh every 60 seconds
         setInterval(() => {
             state.cache.clear();
-            loadAllData().then(() => {
+            // Reload only already-loaded sections
+            const promises = [];
+            Object.entries(state.sections).forEach(([name, section]) => {
+                if (section.loaded && !section.isWatchlist) {
+                    promises.push(loadSection(name));
+                }
+            });
+            // Also reload watchlist tickers
+            if (state.watchlist.size > 0) {
+                promises.push(fetchWithCache(`${API_BASE}/ticker?ticker=${Array.from(state.watchlist).join(',')}`).then(data => {
+                    if (Array.isArray(data)) {
+                        data.forEach(d => {
+                            if (d.ticker) state.data[d.ticker] = d;
+                        });
+                    }
+                }).catch(() => {}));
+            }
+            
+            Promise.all(promises).then(() => {
                 renderTickerTape();
                 renderSections();
                 if (state.selectedTicker && state.data[state.selectedTicker]) {
