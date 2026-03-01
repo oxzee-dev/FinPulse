@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinZee Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg0: #080c10;
+    --bg1: #0d1117;
+    --bg2: #111820;
+    --bg3: #171f2a;
+    --bg4: #1c2533;
+    --border: #1e2d3d;
+    --border2: #243040;
+    --accent: #00d4ff;
+    --accent2: #0099cc;
+    --green: #00e676;
+    --green2: #00b857;
+    --red: #ff1744;
+    --red2: #cc1136;
+    --yellow: #ffd600;
+    --orange: #ff6d00;
+    --purple: #7c4dff;
+    --text: #c9d8e8;
+    --text2: #7a96b0;
+    --text3: #4a6070;
+    --mono: 'Share Tech Mono', 'Courier Prime', monospace;
+    --sans: 'Rajdhani', sans-serif;
+    --tape-h: 28px;
+    --left-w: 280px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg0);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── TAPE ─── */
+  #tape-bar {
+    height: var(--tape-h);
+    background: var(--bg1);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  #tape-bar::before {
+    content: 'FINZEE';
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    padding: 0 12px;
+    white-space: nowrap;
+    border-right: 1px solid var(--border);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    line-height: var(--tape-h);
+  }
+  .tape-scroll {
+    display: flex;
+    animation: scroll-tape 40s linear infinite;
+    white-space: nowrap;
+    align-items: center;
+    height: 100%;
+    padding-left: 80px;
+  }
+  .tape-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    border-right: 1px solid var(--border);
+    height: 100%;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .tape-item:hover { background: var(--bg3); }
+  .tape-sym { color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+  .tape-price { color: var(--text); font-size: 10px; }
+  .tape-chg { font-size: 9px; font-weight: 700; }
+  .up { color: var(--green); }
+  .dn { color: var(--red); }
+  .unch { color: var(--text2); }
+  @keyframes scroll-tape {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  #main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ─── LEFT PANEL ─── */
+  #left-panel {
+    width: var(--left-w);
+    min-width: var(--left-w);
+    background: var(--bg1);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #left-header {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  #left-header span {
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .time-display {
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  #left-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  #left-scroll::-webkit-scrollbar { width: 3px; }
+  #left-scroll::-webkit-scrollbar-track { background: var(--bg1); }
+  #left-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* Expander */
+  .expander {
+    border-bottom: 1px solid var(--border);
+  }
+  .expander-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    cursor: pointer;
+    background: var(--bg2);
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .expander-header:hover { background: var(--bg3); }
+  .expander-title {
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .expander-title .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .expander-arrow {
+    color: var(--text3);
+    font-size: 9px;
+    transition: transform 0.2s;
+  }
+  .expander.open .expander-arrow { transform: rotate(90deg); }
+  .expander-body { display: none; }
+  .expander.open .expander-body { display: block; }
+
+  /* Table */
+  .ticker-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .ticker-table thead tr {
+    background: var(--bg0);
+  }
+  .ticker-table th {
+    padding: 3px 4px;
+    text-align: right;
+    font-size: 8px;
+    color: var(--text3);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .ticker-table th:first-child { text-align: left; padding-left: 10px; }
+  .ticker-table tbody tr {
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .ticker-table tbody tr:hover { background: var(--bg3); }
+  .ticker-table td {
+    padding: 2px 4px;
+    text-align: right;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+  .ticker-table td:first-child {
+    text-align: left;
+    padding-left: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+  .ticker-table td.price { color: var(--text); }
+  .ticker-table td.chg-d { font-size: 8px; }
+  .ticker-table td.atr-bar { width: 30px; }
+
+  .mini-bar {
+    width: 28px;
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .mini-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  /* ─── RIGHT PANEL ─── */
+  #right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg0);
+  }
+
+  /* Welcome screen */
+  #welcome {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--text3);
+  }
+  #welcome .logo {
+    font-family: var(--sans);
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    color: var(--accent);
+    text-shadow: 0 0 40px rgba(0,212,255,0.3);
+  }
+  #welcome .sub { font-size: 11px; letter-spacing: 3px; color: var(--text3); }
+
+  /* Ticker section */
+  #ticker-section {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #ticker-section.active { display: flex; }
+
+  /* Top bar */
+  #ticker-topbar {
+    height: 36px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  #ticker-name {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  #ticker-fullname {
+    font-size: 10px;
+    color: var(--text2);
+  }
+  #ticker-price-disp {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-left: auto;
+  }
+  #ticker-chg-disp {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Grids */
+  #grid-top {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  #grid1 {
+    flex: 2;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+  #grid2 {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--bg1);
+  }
+  #grid2::-webkit-scrollbar { width: 3px; }
+  #grid2::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  #tradingview-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Grid 2 data */
+  .data-section {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-section-title {
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+  }
+  .data-label { color: var(--text3); font-size: 9px; }
+  .data-val { font-size: 9px; color: var(--text); text-align: right; }
+  .data-val.up { color: var(--green); }
+  .data-val.dn { color: var(--red); }
+
+  .range-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    margin: 4px 0;
+    position: relative;
+  }
+  .range-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red2), var(--green2));
+    border-radius: 2px;
+  }
+  .range-dot {
+    position: absolute;
+    top: -2px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translateX(-50%);
+    border: 1px solid var(--bg0);
+  }
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--text3);
+  }
+
+  /* Grid 3 - News */
+  #grid3 {
+    height: 130px;
+    border-top: 1px solid var(--border);
+    background: var(--bg1);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  #grid3::-webkit-scrollbar { width: 3px; }
+  #grid3::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  .news-header {
+    padding: 4px 12px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text3);
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .news-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 5px 12px;
+    border-bottom: 1px solid rgba(30,45,61,0.4);
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .news-row:hover { background: var(--bg3); }
+  .news-time { color: var(--text3); font-size: 8px; white-space: nowrap; flex-shrink: 0; width: 50px; }
+  .news-source { color: var(--accent2); font-size: 8px; flex-shrink: 0; width: 60px; overflow: hidden; text-overflow: ellipsis; }
+  .news-title { color: var(--text); font-size: 9px; line-height: 1.4; flex: 1; }
+
+  /* Loading spinner */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text3);
+    font-size: 10px;
+  }
+  .spinner {
+    width: 12px; height: 12px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-track { background: var(--bg0); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* Status bar */
+  #status-bar {
+    height: 18px;
+    background: var(--bg0);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  .status-item { font-size: 8px; color: var(--text3); letter-spacing: 0.5px; }
+  .status-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); margin-right: 5px; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .badge {
+    display: inline-block;
+    padding: 0 4px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 2px;
+    font-size: 7px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-left: 4px;
+  }
+
+  .pe-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .pe-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--green2), var(--yellow));
+    transition: width 0.6s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- TAPE -->
+<div id="tape-bar">
+  <div class="tape-scroll" id="tape-content">
+    <!-- dynamic content duplicated -->
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- LEFT PANEL -->
+  <div id="left-panel">
+    <div id="left-header">
+      <span>Market Overview</span>
+      <span class="time-display" id="clock">--:--:--</span>
+    </div>
+    <div id="left-scroll">
+      <!-- Market Outlook expanded by default -->
+      <div class="expander open" id="exp-market-outlook">
+        <div class="expander-header" onclick="toggleExp(this)">
+          <div class="expander-title"><div class="dot"></div>Market Outlook</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-market-outlook">
+          <div class="loading"><div class="spinner"></div>Loading...</div>
+        </div>
+      </div>
+
+      <div class="expander" id="exp-us">
+        <div class="expander-header" onclick="toggleExp(this, 'us')">
+          <div class="expander-title"><div class="dot" style="background:var(--yellow)"></div>US Indices</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-us"></div>
+      </div>
+
+      <div class="expander" id="exp-world">
+        <div class="expander-header" onclick="toggleExp(this, 'world')">
+          <div class="expander-title"><div class="dot" style="background:var(--purple)"></div>World Indices</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-world"></div>
+      </div>
+
+      <div class="expander" id="exp-sectors">
+        <div class="expander-header" onclick="toggleExp(this, 'sectors')">
+          <div class="expander-title"><div class="dot" style="background:var(--orange)"></div>S&P Sectors</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-sectors"></div>
+      </div>
+
+      <div class="expander" id="exp-assets">
+        <div class="expander-header" onclick="toggleExp(this, 'assets')">
+          <div class="expander-title"><div class="dot" style="background:var(--green)"></div>Global Assets</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-assets"></div>
+      </div>
+
+      <div class="expander" id="exp-etf">
+        <div class="expander-header" onclick="toggleExp(this, 'etf')">
+          <div class="expander-title"><div class="dot" style="background:var(--accent)"></div>ETFs</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-etf"></div>
+      </div>
+
+      <div class="expander" id="exp-stocks">
+        <div class="expander-header" onclick="toggleExp(this, 'stocks')">
+          <div class="expander-title"><div class="dot" style="background:var(--accent2)"></div>Stocks</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-stocks"></div>
+      </div>
+
+      <div class="expander" id="exp-crypto">
+        <div class="expander-header" onclick="toggleExp(this, 'crypto')">
+          <div class="expander-title"><div class="dot" style="background:var(--yellow)"></div>Crypto</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-crypto"></div>
+      </div>
+
+      <div class="expander" id="exp-bond">
+        <div class="expander-header" onclick="toggleExp(this, 'bond')">
+          <div class="expander-title"><div class="dot" style="background:var(--text2)"></div>Bonds & Forex</div>
+          <span class="expander-arrow">▶</span>
+        </div>
+        <div class="expander-body" id="body-bond"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+    <div id="welcome">
+      <div class="logo">FINZEE</div>
+      <div class="sub">FINANCIAL TERMINAL · SELECT A TICKER TO BEGIN</div>
+    </div>
+
+    <div id="ticker-section">
+      <div id="ticker-topbar">
+        <div id="ticker-name">--</div>
+        <div id="ticker-fullname">--</div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:16px;">
+          <div id="ticker-price-disp">--</div>
+          <div id="ticker-chg-disp">--</div>
+        </div>
+      </div>
+      <div id="grid-top">
+        <div id="grid1">
+          <div id="tradingview-container"></div>
+        </div>
+        <div id="grid2">
+          <div id="grid2-content"><div class="loading"><div class="spinner"></div>Loading data...</div></div>
+        </div>
+      </div>
+      <div id="grid3">
+        <div class="news-header">▪ NEWS FEED</div>
+        <div id="news-content"><div class="loading"><div class="spinner"></div>Loading news...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="status-bar">
+  <span class="status-item"><span class="status-dot"></span>LIVE</span>
+  <span class="status-item" id="status-ticker">No ticker selected</span>
+  <span class="status-item" style="margin-left:auto">FinZee Terminal v1.0 · Powered by Yahoo Finance</span>
+</div>
+
+<script>
+const API_BASE = 'https://mini-finapi.vercel.app/api';
+const state = {
+  data: {},
+  cache: new Map(),
+  currentTicker: null,
+  loaded: new Set()
+};
+
+// ─── TICKER GROUPS ───
+const groups = {
+  outlook: ['SPY','QQQ','IWM','DIA','^VIX','TLT','GLD'],
+  us: ['^IXIC','^GSPC','^DJI','^RUT','^MID','^SP500TR','^NDX'],
+  world: ['^FTSE','^GDAXI','^FCHI','^N225','^HSI','^STI','EWJ','EWZ','EWA','EEM','VEA','VWO','FXI','INDA','ERUS'],
+  sectors: ['XLF','XLK','XLE','XLV','XLI','XLP','XLY','XLU','XLRE','XLC','XLB'],
+  assets: ['GLD','SLV','USO','UNG','DJP','PDBC','UUP','FXE','FXY','FXB','FXC','EEM','VNQ','PDBC'],
+  etf: ['SPY','QQQ','ARKK','ARKQ','ARKW','ARKG','ARKF','SMH','BOTZ','LIT','ICLN','IBB','XBI','KWEB','HACK'],
+  stocks: ['NVDA','TSLA','AVGO','AMD','CRM','PLTR','INTC','SNOW','COIN','SQ','SOFI','RKLB','ASTS','AI','PATH','META','MSFT','GOOGL','AMZN','AAPL'],
+  crypto: ['BTC-USD','ETH-USD','SOL-USD','BNB-USD','XRP-USD','DOGE-USD','ADA-USD','AVAX-USD','DOT-USD','MATIC-USD'],
+  bond: ['TLT','HYG','LQD','SHY','IEF','BND','AGG','EURUSD=X','GBPUSD=X','JPYUSD=X','CADUSD=X','AUDUSD=X']
+};
+
+// ─── TAPE TICKERS ───
+const tapeTickers = ['SPY','QQQ','NVDA','TSLA','AAPL','MSFT','BTC-USD','ETH-USD','GLD','TLT'];
+
+async function fetchWithCache(url) {
+  if (state.cache.has(url)) return state.cache.get(url);
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    state.cache.set(url, d);
+    setTimeout(() => state.cache.delete(url), 60000);
+    return d;
+  } catch(e) { throw e; }
+}
+
+async function fetchTickers(tickers) {
+  const chunks = [];
+  for (let i=0; i<tickers.length; i+=15) chunks.push(tickers.slice(i,i+15));
+  for (const chunk of chunks) {
+    try {
+      const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${chunk.join(',')}`);
+      if (Array.isArray(data)) data.forEach(d => { if (d.ticker) state.data[d.ticker] = d; });
+      else if (data && data.ticker) state.data[data.ticker] = data;
+    } catch(e) { console.warn('Fetch failed', e); }
+  }
+}
+
+// ─── FORMAT HELPERS ───
+function fmt(v, dec=2) {
+  if (v==null||isNaN(v)) return '--';
+  if (Math.abs(v)>=1e12) return (v/1e12).toFixed(2)+'T';
+  if (Math.abs(v)>=1e9) return (v/1e9).toFixed(2)+'B';
+  if (Math.abs(v)>=1e6) return (v/1e6).toFixed(2)+'M';
+  if (Math.abs(v)>=1e3) return (v/1e3).toFixed(2)+'K';
+  return v.toFixed(dec);
+}
+function fmtPrice(v) {
+  if (v==null||isNaN(v)) return '--';
+  return v >= 1000 ? v.toFixed(0) : v >= 10 ? v.toFixed(2) : v.toFixed(4);
+}
+function pct(v) { if (v==null||isNaN(v)) return '--'; return (v>=0?'+':'')+v.toFixed(2)+'%'; }
+function cls(v) { if (v==null||isNaN(v)) return 'unch'; return v>0?'up':v<0?'dn':'unch'; }
+
+function miniBar(val, max=100, color=null) {
+  const pct = Math.min(Math.abs(val||0)/max*100, 100);
+  const c = color || (val>=0 ? 'var(--green2)' : 'var(--red2)');
+  return `<div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%;background:${c}"></div></div>`;
+}
+
+// ─── CLOCK ───
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ─── TABLE BUILDER ───
+function buildTable(tickers, groupKey) {
+  const rows = tickers.map(sym => {
+    const d = state.data[sym] || {};
+    const price = d.currentPrice || d.regularMarketPrice || null;
+    const chgD = d.oneDayChange || d.regularMarketChangePercent || null;
+    const chg52w = d.fiftyTwoWeekChangePercent || null;
+    const atr50 = d.percentFromFiftyDayMA || null;
+    const atr200 = d.percentFromTwoHundredDayMA || null;
+    return `<tr onclick="loadTicker('${sym}')">
+      <td>${sym}</td>
+      <td class="price">${fmtPrice(price)}</td>
+      <td class="chg-d ${cls(chgD)}">${pct(chgD)}</td>
+      <td class="${cls(chg52w)}">${pct(chg52w)}</td>
+      <td>${miniBar(atr50, 20)}</td>
+      <td>${miniBar(atr200, 20)}</td>
+    </tr>`;
+  }).join('');
+  return `<table class="ticker-table">
+    <thead><tr>
+      <th>Sym</th><th>Price</th><th>1D%</th><th>52W%</th><th>50D</th><th>200D</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ─── TAPE ───
+async function initTape() {
+  await fetchTickers(tapeTickers);
+  const items = tapeTickers.map(sym => {
+    const d = state.data[sym] || {};
+    const price = d.currentPrice || '--';
+    const chg = d.oneDayChange || 0;
+    return `<div class="tape-item" onclick="loadTicker('${sym}')">
+      <span class="tape-sym">${sym}</span>
+      <span class="tape-price">${fmtPrice(price)}</span>
+      <span class="tape-chg ${cls(chg)}">${pct(chg)}</span>
+    </div>`;
+  }).join('');
+  // duplicate for infinite scroll
+  const content = document.getElementById('tape-content');
+  content.innerHTML = items + items;
+}
+
+// ─── EXPANDER TOGGLE ───
+async function toggleExp(header, group) {
+  const exp = header.parentElement;
+  exp.classList.toggle('open');
+  if (exp.classList.contains('open') && group && !state.loaded.has(group)) {
+    state.loaded.add(group);
+    const body = document.getElementById(`body-${group}`);
+    body.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+    await fetchTickers(groups[group]);
+    body.innerHTML = buildTable(groups[group], group);
+  }
+}
+
+// ─── INIT MARKET OUTLOOK ───
+async function initOutlook() {
+  await fetchTickers(groups.outlook);
+  const body = document.getElementById('body-market-outlook');
+  body.innerHTML = buildTable(groups.outlook, 'outlook');
+}
+
+// ─── TRADINGVIEW ───
+function loadTVWidget(symbol) {
+  const container = document.getElementById('tradingview-container');
+  container.innerHTML = '';
+  
+  // Map symbol to TV format
+  let tvSym = symbol;
+  if (symbol.startsWith('^')) {
+    const map = {'^GSPC':'SP:SPX','^IXIC':'NASDAQ:IXIC','^DJI':'DJ:DJI','^RUT':'TVC:RUT','^VIX':'CBOE:VIX','^N225':'TVC:NI225','^FTSE':'TVC:UKX','^GDAXI':'XETR:DAX','^FCHI':'EURONEXT:PX1','^HSI':'TVC:HSI','^NDX':'NASDAQ:NDX','^MID':'AMEX:MDY'};
+    tvSym = map[symbol] || 'SP:SPX';
+  } else if (symbol.endsWith('-USD')) {
+    const base = symbol.replace('-USD','');
+    tvSym = `BINANCE:${base}USDT`;
+  } else if (symbol.endsWith('=X')) {
+    const pair = symbol.replace('=X','');
+    tvSym = `FX:${pair}`;
+  } else {
+    // Try to map common tickers
+    const nasdaqTickers = new Set(['AAPL','MSFT','GOOGL','AMZN','NVDA','TSLA','AVGO','AMD','INTC','SNOW','COIN','PLTR','CRM','SOFI','PATH','AI','META','ASTS','RKLB']);
+    if (nasdaqTickers.has(symbol)) tvSym = `NASDAQ:${symbol}`;
+    else tvSym = `AMEX:${symbol}`;
+  }
+
+  const widgetDiv = document.createElement('div');
+  widgetDiv.className = 'tradingview-widget-container';
+  widgetDiv.style.cssText = 'height:100%;width:100%';
+  
+  const inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.cssText = 'height:calc(100% - 32px);width:100%';
+  widgetDiv.appendChild(inner);
+
+  const script = document.createElement('script');
+  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  script.async = true;
+  script.type = 'text/javascript';
+  script.textContent = JSON.stringify({
+    allow_symbol_change: false,
+    calendar: false,
+    details: false,
+    hide_side_toolbar: true,
+    hide_top_toolbar: false,
+    hide_legend: false,
+    hide_volume: false,
+    hotlist: false,
+    interval: 'D',
+    locale: 'en',
+    save_image: false,
+    style: '1',
+    symbol: tvSym,
+    theme: 'dark',
+    timezone: 'Etc/UTC',
+    backgroundColor: '#080c10',
+    gridColor: 'rgba(30,45,61,0.3)',
+    watchlist: [],
+    withdateranges: false,
+    compareSymbols: [],
+    studies: ['RSI@tv-basicstudies','MASimple@tv-basicstudies'],
+    autosize: true
+  });
+  widgetDiv.appendChild(script);
+  container.appendChild(widgetDiv);
+}
+
+// ─── GRID2 DATA ───
+function buildGrid2(d, sym) {
+  const price = d.currentPrice || d.regularMarketPrice;
+  const low52 = d.fiftyTwoWeekLow;
+  const high52 = d.fiftyTwoWeekHigh;
+  const rangePct = (price && low52 && high52) ? ((price-low52)/(high52-low52)*100) : null;
+
+  const chgColor = (d.oneDayChange||0) >= 0 ? 'var(--green)' : 'var(--red)';
+
+  let rangeHtml = '';
+  if (rangePct != null) {
+    rangeHtml = `
+      <div class="range-bar">
+        <div class="range-fill" style="width:100%"></div>
+        <div class="range-dot" style="left:${rangePct}%"></div>
+      </div>
+      <div class="range-labels">
+        <span>${fmtPrice(low52)}</span>
+        <span style="color:var(--text2)">${rangePct.toFixed(0)}%</span>
+        <span>${fmtPrice(high52)}</span>
+      </div>`;
+  }
+
+  const pe = d.trailingPE || d.forwardPE;
+  const peFill = pe ? Math.min(pe/50*100, 100) : 0;
+
+  return `
+    <div class="data-section">
+      <div class="data-section-title">Price Action</div>
+      <div class="data-row"><span class="data-label">Open</span><span class="data-val">${fmtPrice(d.regularMarketOpen)}</span></div>
+      <div class="data-row"><span class="data-label">High</span><span class="data-val up">${fmtPrice(d.dayHigh||d.regularMarketDayHigh)}</span></div>
+      <div class="data-row"><span class="data-label">Low</span><span class="data-val dn">${fmtPrice(d.dayLow||d.regularMarketDayLow)}</span></div>
+      <div class="data-row"><span class="data-label">Prev Close</span><span class="data-val">${fmtPrice(d.regularMarketPreviousClose)}</span></div>
+      <div class="data-row"><span class="data-label">Volume</span><span class="data-val">${fmt(d.regularMarketVolume||d.volume,0)}</span></div>
+      <div class="data-row"><span class="data-label">Avg Vol</span><span class="data-val">${fmt(d.averageVolume||d.averageDailyVolume3Month,0)}</span></div>
+    </div>
+    <div class="data-section">
+      <div class="data-section-title">52W Range</div>
+      ${rangeHtml || '<div class="data-label" style="padding:4px 0">N/A</div>'}
+    </div>
+    <div class="data-section">
+      <div class="data-section-title">Fundamentals</div>
+      <div class="data-row"><span class="data-label">Mkt Cap</span><span class="data-val">${fmt(d.marketCap)}</span></div>
+      <div class="data-row"><span class="data-label">P/E (TTM)</span><span class="data-val">${d.trailingPE ? d.trailingPE.toFixed(1) : '--'}</span></div>
+      <div class="data-row"><span class="data-label">P/E (Fwd)</span><span class="data-val">${d.forwardPE ? d.forwardPE.toFixed(1) : '--'}</span></div>
+      ${peFill > 0 ? `<div class="pe-bar" style="margin:4px 0"><div class="pe-fill" style="width:${peFill}%"></div></div>` : ''}
+      <div class="data-row"><span class="data-label">EPS (TTM)</span><span class="data-val">${d.trailingEps ? '$'+d.trailingEps.toFixed(2) : '--'}</span></div>
+      <div class="data-row"><span class="data-label">P/B</span><span class="data-val">${d.priceToBook ? d.priceToBook.toFixed(2) : '--'}</span></div>
+      <div class="data-row"><span class="data-label">Beta</span><span class="data-val">${d.beta ? d.beta.toFixed(2) : '--'}</span></div>
+    </div>
+    <div class="data-section">
+      <div class="data-section-title">Moving Averages</div>
+      <div class="data-row">
+        <span class="data-label">50 DMA</span>
+        <span class="data-val">${fmtPrice(d.fiftyDayAverage)}</span>
+        <span class="data-val ${cls(d.percentFromFiftyDayMA)}">${pct(d.percentFromFiftyDayMA)}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">200 DMA</span>
+        <span class="data-val">${fmtPrice(d.twoHundredDayAverage)}</span>
+        <span class="data-val ${cls(d.percentFromTwoHundredDayMA)}">${pct(d.percentFromTwoHundredDayMA)}</span>
+      </div>
+      <div class="data-row"><span class="data-label">ATR (14)</span><span class="data-val">${d.atr ? d.atr.toFixed(2) : '--'}</span></div>
+    </div>
+    <div class="data-section">
+      <div class="data-section-title">Dividends & Earnings</div>
+      <div class="data-row"><span class="data-label">Div Yield</span><span class="data-val ${cls(d.dividendYield)}">${d.dividendYield ? (d.dividendYield*100).toFixed(2)+'%' : '--'}</span></div>
+      <div class="data-row"><span class="data-label">Div/Share</span><span class="data-val">${d.dividendRate ? '$'+d.dividendRate.toFixed(2) : '--'}</span></div>
+      <div class="data-row"><span class="data-label">Ex-Div</span><span class="data-val">${d.exDividendDate ? new Date(d.exDividendDate*1000).toLocaleDateString() : '--'}</span></div>
+      <div class="data-row"><span class="data-label">Next Earn.</span><span class="data-val">${d.earningsDate || '--'}</span></div>
+      <div class="data-row"><span class="data-label">52W Chg</span><span class="data-val ${cls(d.fiftyTwoWeekChangePercent)}">${pct(d.fiftyTwoWeekChangePercent)}</span></div>
+    </div>
+    <div class="data-section">
+      <div class="data-section-title">Company Info</div>
+      <div class="data-row"><span class="data-label">Sector</span><span class="data-val" style="font-size:8px">${d.sector||'--'}</span></div>
+      <div class="data-row"><span class="data-label">Industry</span><span class="data-val" style="font-size:8px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${d.industry||'--'}</span></div>
+      <div class="data-row"><span class="data-label">Country</span><span class="data-val">${d.country||'--'}</span></div>
+      <div class="data-row"><span class="data-label">Exchange</span><span class="data-val">${d.exchange||'--'}</span></div>
+      <div class="data-row"><span class="data-label">Currency</span><span class="data-val">${d.currency||'--'}</span></div>
+    </div>
+  `;
+}
+
+// ─── NEWS ───
+function buildNews(d) {
+  const news = d.news || [];
+  if (!news.length) return '<div class="loading">No news available</div>';
+  return news.slice(0,15).map(n => {
+    const ts = n.providerPublishTime ? new Date(n.providerPublishTime*1000) : null;
+    const time = ts ? ts.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '--';
+    const source = n.publisher || n.source || '—';
+    return `<div class="news-row" onclick="window.open('${n.link||'#'}','_blank')">
+      <span class="news-time">${time}</span>
+      <span class="news-source">${source}</span>
+      <span class="news-title">${n.title||'—'}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── LOAD TICKER ───
+async function loadTicker(sym) {
+  state.currentTicker = sym;
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('ticker-section').classList.add('active');
+  document.getElementById('ticker-name').textContent = sym;
+  document.getElementById('ticker-fullname').textContent = 'Loading...';
+  document.getElementById('ticker-price-disp').textContent = '--';
+  document.getElementById('ticker-chg-disp').textContent = '--';
+  document.getElementById('grid2-content').innerHTML = '<div class="loading"><div class="spinner"></div>Loading data...</div>';
+  document.getElementById('news-content').innerHTML = '<div class="loading"><div class="spinner"></div>Loading news...</div>';
+  document.getElementById('status-ticker').textContent = `Viewing: ${sym}`;
+
+  // Load TV widget immediately
+  loadTVWidget(sym);
+
+  // Fetch data
+  if (!state.data[sym]) await fetchTickers([sym]);
+  const d = state.data[sym] || {};
+
+  const price = d.currentPrice || d.regularMarketPrice;
+  const chg = d.oneDayChange;
+  document.getElementById('ticker-fullname').textContent = d.longName || d.shortName || sym;
+  document.getElementById('ticker-price-disp').textContent = fmtPrice(price);
+  const chgEl = document.getElementById('ticker-chg-disp');
+  chgEl.textContent = pct(chg);
+  chgEl.className = 'data-val ' + cls(chg);
+  chgEl.style.fontSize = '14px';
+
+  document.getElementById('grid2-content').innerHTML = buildGrid2(d, sym);
+  document.getElementById('news-content').innerHTML = buildNews(d);
+}
+
+// ─── INIT ───
+async function init() {
+  initTape();
+  await initOutlook();
+}
+
+init();
+</script>
+</body>
+</html>
