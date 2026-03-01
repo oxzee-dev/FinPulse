@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinZee | Financial Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-hover: #252525;
+            --border-color: #2a2a2a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888888;
+            --accent-blue: #00d4ff;
+            --accent-orange: #ff6600;
+            --accent-amber: #ffb000;
+            --positive: #00c853;
+            --negative: #ff3d00;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Ticker Tape */
+        .ticker-tape {
+            height: 32px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 40s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 24px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .ticker-symbol {
+            color: var(--accent-blue);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .ticker-price {
+            color: var(--text-primary);
+            margin-right: 6px;
+        }
+
+        .ticker-change {
+            font-size: 11px;
+        }
+
+        .ticker-change.positive { color: var(--positive); }
+        .ticker-change.negative { color: var(--negative); }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 32px);
+        }
+
+        /* Control Panel (1/4) */
+        .control-panel {
+            width: 25%;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            color: var(--accent-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-box input {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .sections-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sections-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sections-container::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .sections-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+        }
+
+        /* Accordion Sections */
+        .section {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .section-header:hover {
+            background: var(--bg-hover);
+        }
+
+        .section-header.active {
+            background: var(--accent-orange);
+            color: #000;
+        }
+
+        .section-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-arrow {
+            transition: transform 0.2s;
+            font-size: 10px;
+        }
+
+        .section-header.active .section-arrow {
+            transform: rotate(90deg);
+        }
+
+        .section-content {
+            display: none;
+            background: var(--bg-primary);
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        /* Data Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 6px 8px;
+            text-align: left;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 10px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .data-table tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .data-table tr.selected td {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 2px solid var(--accent-blue);
+        }
+
+        .ticker-cell {
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        .price-cell {
+            font-family: var(--font-mono);
+            text-align: right;
+        }
+
+        .change-cell {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .change-positive { color: var(--positive); }
+        .change-negative { color: var(--negative); }
+
+        .metric-cell {
+            text-align: right;
+            color: var(--text-secondary);
+        }
+
+        /* Loading State */
+        .loading-row td {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+
+        /* Ticker Detail Panel (3/4) */
+        .ticker-detail {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+
+        .detail-header {
+            height: 70px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .ticker-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .ticker-main {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .ticker-name {
+            color: var(--text-secondary);
+            font-size: 13px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ticker-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: right;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        .stat-value.positive { color: var(--positive); }
+        .stat-value.negative { color: var(--negative); }
+
+        /* Grid Layout */
+        .detail-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .grid-top {
+            flex: 1;
+            display: flex;
+            height: 80%;
+        }
+
+        .grid1 {
+            flex: 2;
+            border-right: 1px solid var(--border-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid2 {
+            flex: 1;
+            background: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .grid3 {
+            height: 20%;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            width: 100%;
+            flex: 1;
+            position: relative;
+        }
+
+        /* Financial Data Panel */
+        .financial-panel {
+            padding: 12px;
+        }
+
+        .fin-section {
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+        }
+
+        .fin-header {
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
+            font-weight: bold;
+            color: var(--accent-amber);
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .fin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border-color);
+        }
+
+        .fin-item {
+            background: var(--bg-primary);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fin-label {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .fin-value {
+            font-weight: bold;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+
+        .fin-value.positive { color: var(--positive); }
+        .fin-value.negative { color: var(--negative); }
+
+        /* News Section */
+        .news-container {
+            padding: 12px;
+        }
+
+        .news-header {
+            font-weight: bold;
+            color: var(--accent-orange);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 11px;
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .news-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .news-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .news-title {
+            color: var(--text-primary);
+            font-weight: bold;
+            margin-bottom: 4px;
+            line-height: 1.4;
+            font-size: 12px;
+        }
+
+        .news-summary {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-meta {
+            color: var(--text-secondary);
+            font-size: 10px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .news-source {
+            color: var(--accent-blue);
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Utility */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .hidden { display: none; }
+        
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: var(--negative);
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <!-- Ticker Tape -->
+    <div class="ticker-tape" id="tickerTape">
+        <div class="ticker-content" id="tickerContent">
+            <span style="padding: 0 20px; color: var(--text-secondary);">Loading market data...</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <span>FinZee Terminal</span>
+                <span style="font-size: 10px; color: var(--text-secondary);">LIVE</span>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search ticker (e.g. NVDA)...">
+            </div>
+
+            <div class="sections-container" id="sectionsContainer">
+                <!-- Sections populated by JS -->
+            </div>
+        </div>
+
+        <!-- Ticker Detail -->
+        <div class="ticker-detail">
+            <div class="detail-header" id="detailHeader">
+                <div class="ticker-info">
+                    <div>
+                        <div class="ticker-main" id="mainTicker">--</div>
+                        <div class="ticker-name" id="tickerName">Select a ticker</div>
+                    </div>
+                </div>
+                <div class="ticker-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Last Price</div>
+                        <div class="stat-value" id="mainPrice">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Change</div>
+                        <div class="stat-value" id="mainChange">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Market Cap</div>
+                        <div class="stat-value" id="mainMarketCap">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="grid-top">
+                    <div class="grid1">
+                        <div class="tradingview-widget-container" id="tradingviewChart" style="height: 100%;">
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">
+                                Select a ticker to view chart
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid2" id="financialData">
+                        <div style="padding: 20px; color: var(--text-secondary); text-align: center;">
+                            Financial data will appear here
+                        </div>
+                    </div>
+                </div>
+                <div class="grid3" id="newsContainer">
+                    <div class="news-container">
+                        <div class="news-header">Recent News</div>
+                        <div style="padding: 20px; color: var(--text-secondary); text-align: center;">
+                            News will appear here
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        const state = {
+            cache: new Map(),
+            data: {},
+            selectedTicker: null,
+            sections: {
+                'Market Outlook': {
+                    expanded: true,
+                    tickers: ['SPY', 'QQQ', 'IWM', 'DIA', 'VIX']
+                },
+                'US Indices': {
+                    expanded: false,
+                    tickers: ['^GSPC', '^DJI', '^IXIC', '^RUT', '^VIX', '^TNX', '^FVX', '^TYX']
+                },
+                'World Indices': {
+                    expanded: false,
+                    tickers: ['^N225', '^FTSE', '^GDAXI', '^FCHI', '^HSI', '000001.SS', '^AXJO', '^KS11']
+                },
+                'Sectors': {
+                    expanded: false,
+                    tickers: ['XLF', 'XLK', 'XLE', 'XLV', 'XLI', 'XLP', 'XLY', 'XLU', 'XLRE', 'XLC', 'XLB']
+                },
+                'Global Assets': {
+                    expanded: false,
+                    tickers: ['GLD', 'SLV', 'USO', 'UNG', 'DBA', 'UUP', 'FXE', 'FXY', 'FXB']
+                },
+                'Innovation ETFs': {
+                    expanded: false,
+                    tickers: ['ARKK', 'ARKQ', 'ARKW', 'ARKG', 'ARKF', 'SMH', 'BOTZ', 'LIT', 'ICLN', 'QCLN']
+                },
+                'Tech Stocks': {
+                    expanded: false,
+                    tickers: ['NVDA', 'TSLA', 'AVGO', 'AMD', 'CRM', 'PLTR', 'INTC', 'SNOW', 'COIN', 'SQ', 'SOFI', 'RKLB', 'ASTS', 'AI', 'PATH', 'MSTR', 'MARA', 'RIOT', 'HOOD', 'NET']
+                },
+                'Crypto': {
+                    expanded: false,
+                    tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'MATIC-USD', 'UNI-USD', 'AAVE-USD', 'CRV-USD']
+                },
+                'Bonds & Rates': {
+                    expanded: false,
+                    tickers: ['TLT', 'IEF', 'SHY', 'HYG', 'LQD', 'BND', 'AGG', 'TIP', 'MUB', 'EMB']
+                }
+            }
+        };
+
+        const API_BASE = 'https://mini-finapi.vercel.app/api';
+
+        // Helper to parse percentage strings
+        function parsePercent(str) {
+            if (!str) return 0;
+            if (typeof str === 'number') return str;
+            return parseFloat(str.replace('%', '').trim());
+        }
+
+        // Helper to get nested value safely
+        function getVal(obj, path, defaultVal = '--') {
+            const keys = path.split('.');
+            let val = obj;
+            for (const key of keys) {
+                if (val && val[key] !== undefined && val[key] !== null) {
+                    val = val[key];
+                } else {
+                    return defaultVal;
+                }
+            }
+            return val !== null && val !== undefined ? val : defaultVal;
+        }
+
+        // Cache utility
+        async function fetchWithCache(url) {
+            if (state.cache.has(url)) return state.cache.get(url);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                state.cache.set(url, data);
+                setTimeout(() => state.cache.delete(url), 60000);
+                return data;
+            } catch (e) {
+                console.error('Fetch failed:', e);
+                throw e;
+            }
+        }
+
+        // Initialize
+        async function init() {
+            await loadAllData();
+            renderTickerTape();
+            renderSections();
+            
+            // Auto-select first ticker from Market Outlook
+            const firstTicker = state.sections['Market Outlook'].tickers[0];
+            if (firstTicker && state.data[firstTicker]) {
+                selectTicker(firstTicker);
+            }
+        }
+
+        // Load all ticker data
+        async function loadAllData() {
+            const allTickers = Object.values(state.sections).flatMap(s => s.tickers);
+            const uniqueTickers = [...new Set(allTickers)];
+            
+            // Load in batches of 10 to avoid URL length issues
+            const batchSize = 10;
+            for (let i = 0; i < uniqueTickers.length; i += batchSize) {
+                const batch = uniqueTickers.slice(i, i + batchSize);
+                try {
+                    const data = await fetchWithCache(`${API_BASE}/ticker?ticker=${batch.join(',')}`);
+                    if (Array.isArray(data)) {
+                        data.forEach(d => {
+                            if (d.ticker) state.data[d.ticker] = d;
+                        });
+                    }
+                } catch (e) {
+                    console.error(`Failed to load batch ${i}:`, e);
+                }
+            }
+        }
+
+        // Render Ticker Tape
+        function renderTickerTape() {
+            const tapeTickers = ['SPY', 'QQQ', 'IWM', 'DIA', 'GLD', 'TLT', 'VIX', 'AAPL', 'TSLA', 'NVDA'];
+            const content = document.getElementById('tickerContent');
+            
+            const items = tapeTickers.map(ticker => {
+                const data = state.data[ticker];
+                if (!data) return '';
+                
+                const price = getVal(data, 'main_info.currentPrice', 0);
+                const changeStr = getVal(data, 'main_info.oneDayChange', '0%');
+                const change = parsePercent(changeStr);
+                const changeClass = change >= 0 ? 'positive' : 'negative';
+                const changeDisp = change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`;
+                
+                return `
+                    <div class="ticker-item">
+                        <span class="ticker-symbol">${ticker}</span>
+                        <span class="ticker-price">${typeof price === 'number' ? price.toFixed(2) : price}</span>
+                        <span class="ticker-change ${changeClass}">${changeDisp}</span>
+                    </div>
+                `;
+            }).filter(Boolean).join('');
+            
+            if (items) {
+                content.innerHTML = items + items; // Duplicate for seamless loop
+            }
+        }
+
+        // Render Sections
+        function renderSections() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+            
+            Object.entries(state.sections).forEach(([name, section]) => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'section';
+                sectionEl.innerHTML = `
+                    <div class="section-header ${section.expanded ? 'active' : ''}" onclick="toggleSection('${name}')">
+                        <span class="section-title">${name}</span>
+                        <span class="section-arrow">▶</span>
+                    </div>
+                    <div class="section-content ${section.expanded ? 'active' : ''}" id="section-${name.replace(/\s+/g, '-')}">
+                        ${renderTickerTable(section.tickers)}
+                    </div>
+                `;
+                container.appendChild(sectionEl);
+            });
+        }
+
+        // Render Ticker Table
+        function renderTickerTable(tickers) {
+            if (!tickers.length) return '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">No tickers</div>';
+            
+            const rows = tickers.map(ticker => {
+                const data = state.data[ticker];
+                if (!data) {
+                    return `<tr onclick="selectTicker('${ticker}')" id="row-${ticker}">
+                        <td class="ticker-cell">${ticker}</td>
+                        <td colspan="5" class="text-center" style="color: var(--text-secondary);">Loading...</td>
+                    </tr>`;
+                }
+                
+                const main = data.main_info || {};
+                const trading = data.trading_info || {};
+                const pricePerf = data.price_performance || {};
+                
+                const price = main.currentPrice || 0;
+                const changeStr = main.oneDayChange || '0%';
+                const change = parsePercent(changeStr);
+                
+                const change52wStr = main.fiftyTwoWeekChange || pricePerf['52WeekChange'] || '0%';
+                const change52w = parsePercent(change52wStr);
+                
+                const dma50 = trading.change_from_50DMA || '--';
+                const dma200 = trading.change_from_200DMA || '--';
+                
+                const isSelected = state.selectedTicker === ticker ? 'selected' : '';
+                
+                return `
+                    <tr onclick="selectTicker('${ticker}')" id="row-${ticker}" class="${isSelected}">
+                        <td class="ticker-cell">${ticker}</td>
+                        <td class="price-cell">${price ? price.toFixed(2) : '--'}</td>
+                        <td class="change-cell ${change >= 0 ? 'change-positive' : 'change-negative'}">
+                            ${change >= 0 ? '+' : ''}${change.toFixed(2)}%
+                        </td>
+                        <td class="metric-cell ${change52w >= 0 ? 'change-positive' : 'change-negative'}">
+                            ${change52w ? (change52w >= 0 ? '+' : '') + change52w.toFixed(1) + '%' : '--'}
+                        </td>
+                        <td class="metric-cell">${dma50}</td>
+                        <td class="metric-cell">${dma200}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            return `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th class="text-right">Price</th>
+                            <th class="text-right">Day Chg</th>
+                            <th class="text-right">52W Chg</th>
+                            <th class="text-right">50DMA</th>
+                            <th class="text-right">200DMA</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        // Toggle Section
+        window.toggleSection = function(name) {
+            state.sections[name].expanded = !state.sections[name].expanded;
+            renderSections();
+        };
+
+        // Select Ticker
+        window.selectTicker = async function(ticker) {
+            state.selectedTicker = ticker;
+            
+            // Update selection UI
+            document.querySelectorAll('.data-table tr').forEach(tr => tr.classList.remove('selected'));
+            const row = document.getElementById(`row-${ticker}`);
+            if (row) row.classList.add('selected');
+            
+            // Ensure we have data
+            if (!state.data[ticker]) {
+                try {
+                    const fresh = await fetchWithCache(`${API_BASE}/ticker?ticker=${ticker}`);
+                    if (Array.isArray(fresh) && fresh[0]) {
+                        state.data[ticker] = fresh[0];
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch ticker:', e);
+                }
+            }
+            
+            const data = state.data[ticker];
+            if (data) {
+                updateDetailHeader(data);
+                updateChart(ticker);
+                updateFinancialData(data);
+                updateNews(data);
+            }
+        };
+
+        // Update Detail Header
+        function updateDetailHeader(data) {
+            const main = data.main_info || {};
+            const pricePerf = data.price_performance || {};
+            
+            document.getElementById('mainTicker').textContent = data.ticker || '--';
+            document.getElementById('tickerName').textContent = main.shortName || data.shortName || '--';
+            
+            const price = main.currentPrice || 0;
+            document.getElementById('mainPrice').textContent = price ? price.toFixed(2) : '--';
+            
+            const changeStr = main.oneDayChange || '0%';
+            const change = parsePercent(changeStr);
+            const changeEl = document.getElementById('mainChange');
+            changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+            changeEl.className = 'stat-value ' + (change >= 0 ? 'positive' : 'negative');
+            
+            const mcap = main.marketCap || '--';
+            document.getElementById('mainMarketCap').textContent = mcap;
+        }
+
+        // Update TradingView Chart
+        function updateChart(ticker) {
+            const container = document.getElementById('tradingviewChart');
+            container.innerHTML = '';
+            
+            // Determine symbol format for TradingView
+            let symbol = ticker;
+            if (ticker.includes('-USD')) {
+                symbol = `COINBASE:${ticker.replace('-USD', 'USD')}`;
+            } else if (ticker.startsWith('^')) {
+                // Indices
+                symbol = `INDEX:${ticker.substring(1)}`;
+            } else {
+                symbol = `NASDAQ:${ticker}`;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                "allow_symbol_change": true,
+                "calendar": false,
+                "details": false,
+                "hide_side_toolbar": false,
+                "hide_top_toolbar": false,
+                "hide_legend": false,
+                "hide_volume": false,
+                "hotlist": false,
+                "interval": "D",
+                "locale": "en",
+                "save_image": true,
+                "style": "1",
+                "symbol": symbol,
+                "theme": "dark",
+                "timezone": "Etc/UTC",
+                "backgroundColor": "#0a0a0a",
+                "gridColor": "rgba(42, 42, 42, 0.5)",
+                "watchlist": [],
+                "withdateranges": true,
+                "compareSymbols": [],
+                "studies": ["Volume@tv-basicstudies"],
+                "autosize": true
+            });
+            
+            container.appendChild(script);
+        }
+
+        // Update Financial Data Panel
+        function updateFinancialData(data) {
+            const main = data.main_info || {};
+            const pricePerf = data.price_performance || {};
+            const trading = data.trading_info || {};
+            const valuation = data.valuation || {};
+            const ratios = data.ratios || {};
+            const returns = data.returns || {};
+            const risk = data.risk || {};
+            const dividends = data.dividends || {};
+            
+            const sections = [];
+            
+            // Price Action
+            sections.push({
+                title: 'Price Action',
+                items: [
+                    { label: 'Open', value: pricePerf.open ? pricePerf.open.toFixed(2) : '--' },
+                    { label: 'High', value: pricePerf.dayHigh ? pricePerf.dayHigh.toFixed(2) : '--' },
+                    { label: 'Low', value: pricePerf.dayLow ? pricePerf.dayLow.toFixed(2) : '--' },
+                    { label: 'Previous Close', value: pricePerf.previousClose ? pricePerf.previousClose.toFixed(2) : '--' },
+                    { label: '52W High', value: pricePerf.fiftyTwoWeekHigh ? pricePerf.fiftyTwoWeekHigh.toFixed(2) : '--' },
+                    { label: '52W Low', value: pricePerf.fiftyTwoWeekLow ? pricePerf.fiftyTwoWeekLow.toFixed(2) : '--' }
+                ]
+            });
+            
+            // Valuation
+            sections.push({
+                title: 'Valuation',
+                items: [
+                    { label: 'Market Cap', value: main.marketCap || valuation.marketCap || '--' },
+                    { label: 'P/E Ratio', value: main.PE || ratios.trailingPE || '--' },
+                    { label: 'Forward P/E', value: main.forwardPE || ratios.forwardPE || '--' },
+                    { label: 'PEG Ratio', value: ratios.pegRatio || '--' },
+                    { label: 'Price/Book', value: main.priceToBook || valuation.priceToBook || ratios.priceToBook || '--' },
+                    { label: 'Price/Sales', value: main.PS || ratios.priceToSalesTrailing12Months || '--' }
+                ]
+            });
+            
+            // Technicals
+            sections.push({
+                title: 'Technicals',
+                items: [
+                    { label: '50 DMA', value: trading.fiftyDayAverage ? trading.fiftyDayAverage.toFixed(2) : '--' },
+                    { label: '200 DMA', value: trading.twoHundredDayAverage ? trading.twoHundredDayAverage.toFixed(2) : '--' },
+                    { label: 'Dist from 50D', value: trading.change_from_50DMA || '--', color: true },
+                    { label: 'Dist from 200D', value: trading.change_from_200DMA || '--', color: true },
+                    { label: 'Beta', value: risk.beta || risk.beta3Year || '--' },
+                    { label: 'Volume', value: trading.volume ? (trading.volume / 1000000).toFixed(1) + 'M' : '--' }
+                ]
+            });
+            
+            // Returns & Margins
+            sections.push({
+                title: 'Returns & Margins',
+                items: [
+                    { label: 'ROA', value: returns.returnOnAssets || ratios.returnOnAssets || '--' },
+                    { label: 'ROE', value: returns.returnOnEquity || ratios.returnOnEquity || '--' },
+                    { label: 'Profit Margin', value: returns.profitMargins || ratios.profitMargins || '--' },
+                    { label: 'Operating Margin', value: returns.operatingMargins || ratios.operatingMargins || '--' },
+                    { label: 'Gross Margin', value: returns.grossMargins || '--' },
+                    { label: 'EBITDA Margin', value: returns.ebitdaMargins || '--' }
+                ]
+            });
+            
+            // Dividends
+            sections.push({
+                title: 'Dividends',
+                items: [
+                    { label: 'Dividend Rate', value: dividends.dividendRate || '--' },
+                    { label: 'Dividend Yield', value: dividends.dividendYield || '--' },
+                    { label: 'Payout Ratio', value: dividends.payoutRatio || '--' },
+                    { label: '5Y Avg Yield', value: dividends.fiveYearAvgDividendYield || '--' },
+                    { label: 'Ex-Div Date', value: dividends.exDividendDate ? new Date(dividends.exDividendDate * 1000).toLocaleDateString() : '--' },
+                    { label: 'Trailing Yield', value: dividends.trailingAnnualDividendYield || '--' }
+                ]
+            });
+            
+            const container = document.getElementById('financialData');
+            container.innerHTML = sections.map(sec => `
+                <div class="fin-section">
+                    <div class="fin-header">${sec.title}</div>
+                    <div class="fin-grid">
+                        ${sec.items.map(item => {
+                            let val = item.value;
+                            let colorClass = '';
+                            if (item.color && typeof val === 'string' && val.includes('%')) {
+                                const num = parsePercent(val);
+                                colorClass = num >= 0 ? 'positive' : 'negative';
+                            }
+                            return `
+                                <div class="fin-item">
+                                    <span class="fin-label">${item.label}</span>
+                                    <span class="fin-value ${colorClass}">${val}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update News
+        function updateNews(data) {
+            const container = document.getElementById('newsContainer');
+            const news = data.recent_news || [];
+            
+            if (!news.length) {
+                container.innerHTML = `
+                    <div class="news-container">
+                        <div class="news-header">Recent News • ${data.ticker}</div>
+                        <div style="padding: 20px; color: var(--text-secondary); text-align: center;">No recent news available</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const newsHtml = news.slice(0, 8).map(item => `
+                <div class="news-item" onclick="window.open('${item.source_url || '#'}', '_blank')">
+                    <div class="news-title">${item.title}</div>
+                    <div class="news-summary">${item.summary || ''}</div>
+                    <div class="news-meta">
+                        <span class="news-source">${item.provider || 'Unknown'}</span>
+                        <span>${item.pubDate ? new Date(item.pubDate).toLocaleDateString() : ''}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `
+                <div class="news-container">
+                    <div class="news-header">Recent News • ${data.ticker}</div>
+                    ${newsHtml}
+                </div>
+            `;
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toUpperCase();
+            if (!term) {
+                renderSections();
+                return;
+            }
+            
+            // Find and expand sections containing match
+            Object.entries(state.sections).forEach(([name, section]) => {
+                const hasMatch = section.tickers.some(t => t.includes(term));
+                if (hasMatch) {
+                    state.sections[name].expanded = true;
+                } else {
+                    state.sections[name].expanded = false;
+                }
+            });
+            renderSections();
+        });
+
+        // Auto refresh every 60 seconds
+        setInterval(() => {
+            state.cache.clear();
+            loadAllData().then(() => {
+                renderTickerTape();
+                renderSections();
+                if (state.selectedTicker && state.data[state.selectedTicker]) {
+                    selectTicker(state.selectedTicker);
+                }
+            });
+        }, 60000);
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
